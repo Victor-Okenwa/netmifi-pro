@@ -1,0 +1,63 @@
+---
+description: Biome formatting, naming, React, and Tailwind — aligned with netmifi-mono
+globs: "**/*.{ts,tsx,js,jsx}"
+alwaysApply: true
+---
+
+# Code Style
+
+## Biome
+
+- Semicolons always; double quotes only
+- Tabs, width 2; line width 100; trailing commas ES5
+- Organize imports (Biome assist)
+
+## TypeScript
+
+- `interface` for object shapes; `type` for unions / computed types
+- Never use `any`; prefer types, generics, `unknown`, or `never`
+- Type guards over `as` assertions
+
+## Naming
+
+- Components: PascalCase (`UserProfile.tsx`)
+- Functions / variables: camelCase
+- Constants: `UPPER_SNAKE_CASE`
+- Types / interfaces: PascalCase
+
+## Organization
+
+- One primary export per file when practical
+- Co-locate related code; keep functions small
+
+## Comments
+
+JSDoc on utilities:
+
+```typescript
+/**
+ * Formats a date to a readable string.
+ * @param date - The date to format
+ * @param format - Format string (default: "YYYY-MM-DD")
+ * @returns The formatted date string
+ */
+function formatDate(date: Date, format = "YYYY-MM-DD"): string {}
+```
+
+Explain why in critical or confusing code, not what.
+
+## Operators
+
+Prefer `??` for null/undefined defaults. Use `||` only when empty string / `0` / `false` should also fall back.
+
+## Tailwind
+
+Sort classes: layout → spacing → typography → colors → effects.
+
+## React
+
+- Functional components and hooks
+- Extract reusable logic into hooks
+- Handle loading and error states
+- Proper `key` props; keep components focused
+- No `console.log` in production paths

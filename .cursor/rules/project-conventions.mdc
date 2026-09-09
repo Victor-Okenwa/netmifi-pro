@@ -1,0 +1,41 @@
+---
+description: Folders, imports, Bun, and env for this Next.js app
+globs: "**/*.{ts,tsx,js,jsx,json}"
+alwaysApply: true
+---
+
+# Project Conventions
+
+Single Next.js app (not a monorepo). No `@netmifi/*` workspace packages here.
+
+## Folders
+
+- `app/` — routes, layouts, `loading.tsx` / `error.tsx`, route-only composition
+- `components/` — reusable presentational UI
+- `lib/` — `env`, utils, server helpers, data access
+- `public/` — static files
+- Config stays at repo root (`package.json`, `tsconfig.json`, `biome.json`, `next.config.ts`)
+
+Do not force a `src/` root; Next.js uses `app/` at the project root. When porting to mono, UI goes to `packages/design/src/` and logic to the matching package `src/`.
+
+## Imports
+
+```typescript
+import { Button } from "@/components/button";
+import type { Course } from "@/lib/types/course";
+```
+
+- Use `@/` instead of long relative paths
+- `import type` for type-only imports
+- Let Biome sort imports
+
+## Runtime
+
+- Bun only: `bun install`, `bun run`, `bun test` (`bun:test`)
+- Tests: `*.test.ts` / `*.spec.ts`
+
+## Environment
+
+- Gitignore `.env*`; commit `.env.example`
+- When env is needed, add a typed helper in `lib/env.ts` — do not read `process.env` throughout the app
+- Browser-exposed vars: `NEXT_PUBLIC_*` only

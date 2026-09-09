@@ -1,0 +1,53 @@
+---
+description: Next.js App Router architecture and portable UI boundaries
+globs: "**/*.{ts,tsx}"
+alwaysApply: true
+---
+
+# Architecture Patterns
+
+## Server vs client
+
+- Default: Server Components in `app/`
+- `"use client"` only for state, effects, event handlers, or browser APIs
+- Fetch and secrets stay on the server (Server Components, Route Handlers, or Server Actions)
+
+```tsx
+// ✅ app/courses/page.tsx — fetch here, pass props
+export default async function CoursesPage() {
+	const courses = await listCourses();
+	return <CourseList courses={courses} />;
+}
+
+// ❌ Do not fetch inside reusable presentational components
+```
+
+## Presentational UI (`components/`)
+
+Same idea as `@netmifi/design` in mono:
+
+- Props in, UI out
+- No routing, no data fetching, no `process.env`
+- Framework-agnostic so the file can move later
+
+```tsx
+// ✅ Portable
+export function CourseCard({ title, href }: { title: string; href: string }) {
+	return <a href={href}>{title}</a>;
+}
+
+// ❌ Next-coupled reusable component
+"use client";
+import { useRouter } from "next/navigation";
+export function CourseCard({ id }: { id: string }) {
+	const router = useRouter();
+	return <button onClick={() => router.push(`/courses/${id}`)}>Open</button>;
+}
+```
+
+Pass `Link`, callbacks, or `href` from `app/` when you need Next.js navigation.
+
+## Data and env
+
+- Data access in `lib/` (or Route Handlers), not in UI components
+- Typed env from `lib/env.ts` once it exists

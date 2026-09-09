@@ -1,0 +1,61 @@
+---
+description: TypeScript type safety — same bar as netmifi-mono
+globs: "**/*.{ts,tsx}"
+alwaysApply: true
+---
+
+# TypeScript Best Practices
+
+## Never use `any`
+
+```typescript
+// ❌ FORBIDDEN
+function processData(data: any): any {}
+
+// ✅ Types, generics, or unknown
+function processData<T>(data: T): T {}
+function processData(data: unknown): Result {}
+```
+
+Fallback order: real type → generics → `unknown` → `never` (exhaustiveness).
+
+## Type guards, not assertions
+
+```typescript
+function isUser(data: unknown): data is User {
+	return typeof data === "object" && data !== null && "id" in data && "name" in data;
+}
+```
+
+## Interfaces vs types
+
+```typescript
+interface User {
+	id: string;
+	name: string;
+}
+
+type Status = "pending" | "completed" | "failed";
+type UserKeys = keyof User;
+```
+
+## Discriminated unions for state
+
+```typescript
+type AsyncState<T> =
+	| { status: "idle" }
+	| { status: "loading" }
+	| { status: "success"; data: T }
+	| { status: "error"; error: Error };
+```
+
+## Nullish coalescing
+
+```typescript
+const apiUrl = env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+const count = userCount ?? 0;
+
+const displayName = user.name || "Anonymous"; // empty string should fall back
+```
+
+Handle `null` / `undefined` explicitly. `noUncheckedIndexedAccess` is enabled.

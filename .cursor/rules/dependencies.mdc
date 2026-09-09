@@ -1,0 +1,34 @@
+---
+description: Dependency rules for the hackathon Next.js app
+globs: "**/package.json"
+alwaysApply: false
+---
+
+# Dependencies
+
+## Tooling
+
+- Package manager: Bun only (`packageManager` in `package.json`)
+- Do not add npm/yarn/pnpm lockfiles
+
+## Keep it lean
+
+Add a dependency only when the hackathon feature needs it.
+
+Prefer stacks already in netmifi-mono when you do add one:
+
+- Validation: `zod`
+- Dates: `date-fns`
+- Auth (if needed): `better-auth`
+- DB (if needed): `drizzle-orm`
+
+## Avoid unless explicitly required
+
+- `@tanstack/react-router` / `@tanstack/react-query` — this app uses App Router
+- `hono` / `@trpc/*` — mono’s API layer; do not duplicate here for the demo
+- `any`-typed or unmaintained UI kits that cannot move to `@netmifi/design`
+
+## Versions
+
+- React stays on 19.x to match both this app and mono
+- Use `bun add` / `bun add -d`; do not hand-edit lockfile

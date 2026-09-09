@@ -1,0 +1,70 @@
+# NetMifi Pro — AI Code Generation Rules
+
+Hackathon Next.js app. Features built here are intended to land in `netmifi-mono` later.
+Match mono quality (types, Biome, portable UI) without copying the monorepo layout.
+
+## Project Identity
+
+- **App**: Next.js App Router (not Vite / TanStack Router)
+- **Runtime / package manager**: Bun (`bun install`, `bun run`, `bun test`)
+- **Formatter / linter**: Biome (`biome.json`)
+- **UI**: React 19 + Tailwind CSS 4
+- **Imports**: `@/` path alias (see `tsconfig.json`)
+
+This is a single Next.js app, not a Bun workspace. Do not invent `apps/*` or `@netmifi/*` packages here.
+
+## Next.js
+
+- Treat this Next.js version as different from older docs. Prefer `node_modules/next/dist/docs/` over training data.
+- App Router only (`app/`). No Pages Router.
+- Default to Server Components. Add `"use client"` only when the component needs state, effects, or browser APIs.
+- Do not use deprecated Next.js APIs.
+
+## Code Style
+
+- Biome: double quotes, semicolons always, tabs (width 2), line width 100, trailing commas ES5
+- Prefer `interface` for object shapes; `type` for unions, intersections, and computed types
+- Never use `any` — use a real type, generics, `unknown`, or `never`
+- Prefer `??` over `||` for null/undefined defaults
+- Sort Tailwind classes: layout → spacing → typography → colors → effects
+- JSDoc on utility functions (`@param`, `@returns`, `@throws` when relevant)
+- Comment why, not what, in non-obvious or security-sensitive code
+
+## File Organization
+
+```
+app/            routes, layouts, loading/error UI (Next.js only)
+components/     presentational UI (keep free of Next/data fetching)
+lib/            env, utils, server-only helpers, data access
+public/         static assets
+```
+
+- Co-locate route-only UI under `app/` when it is not reusable
+- Put reusable UI in `components/` so it can move to `@netmifi/design` later
+- Put shared logic in `lib/` so it can move to `@netmifi/utils` / `@netmifi/env` later
+
+## Portability (later → netmifi-mono)
+
+- Presentational components: props in, JSX out — no `next/navigation`, no `next/link` inside reusable UI (pass `href` / callbacks / slots from `app/`)
+- No data fetching inside reusable components
+- Do not couple business logic to Hono, tRPC, or TanStack Router here unless the hackathon requires it
+- Env: centralize in `lib/env.ts` when secrets/config appear; never scatter `process.env`
+- Client env vars must use `NEXT_PUBLIC_`
+- Prefer libraries already used in mono when a dependency is needed (zod, date-fns, better-auth, drizzle)
+
+## TypeScript
+
+- Strict mode; `noUncheckedIndexedAccess` is on
+- `import type` for type-only imports
+- Type guards over assertions (`as`)
+
+## When Generating Code
+
+1. Follow Biome (double quotes, semicolons, tabs)
+2. Never use `any`
+3. Keep `components/` portable; keep Next.js APIs in `app/`
+4. Handle loading, empty, and error states
+5. Prefer `??` over `||` for nullish defaults
+6. Sort Tailwind classes
+7. Use Bun, not npm/yarn/pnpm
+8. Do not import from `netmifi-mono` until we explicitly wire a workspace dependency

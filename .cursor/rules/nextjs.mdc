@@ -1,0 +1,37 @@
+---
+description: App Router conventions for this Next.js version (not Pages Router)
+globs: "{app,components,lib}/**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+# Next.js (netmifi-pro)
+
+This App Router / Next.js major may differ from older training data. Prefer
+`node_modules/next/dist/docs/` (and current `next` types) over memory.
+
+## Routing
+
+- File-based routes under `app/` only — no `pages/`
+- Use `layout.tsx`, `page.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx` as appropriate
+- Typed route helpers from this Next.js version (e.g. `LayoutProps`) — do not invent old `pages` APIs
+
+## Data
+
+- Server Components for reads by default
+- Server Actions or Route Handlers (`app/api/.../route.ts`) for mutations
+- Cache and revalidate using this version’s APIs; do not copy `getServerSideProps` / `getStaticProps`
+
+## Client boundaries
+
+- `"use client"` at the leaf that needs the browser, not on entire pages
+- Do not import server-only modules (`lib` secrets, `fs`, etc.) into client files
+
+## Images and fonts
+
+- `next/image` and `next/font` as in the current docs
+- Static files in `public/`
+
+## Config
+
+- App config in `next.config.ts`
+- Do not add Pages Router or custom `src/pages` without an explicit decision
