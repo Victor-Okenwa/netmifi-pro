@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Lexend, Orbitron } from "next/font/google";
-import { ThemeProvider } from "./theme-provider";
+import { Providers } from "./providers";
 import "./globals.css";
 
 const lexend = Lexend({
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 			className={`${lexend.variable} ${jetbrainsMono.variable} ${orbitron.variable} h-full antialiased`}
 		>
 			<body className="flex min-h-full flex-col font-sans" suppressHydrationWarning>
-				<ThemeProvider>{children}</ThemeProvider>
+				<Providers>{children}</Providers>
 			</body>
 		</html>
 	);
