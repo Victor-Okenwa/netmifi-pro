@@ -1,0 +1,25 @@
+---
+description: Split features into small components and solvable slices
+alwaysApply: true
+---
+
+# Decompose before building
+
+Do not dump a whole page into one file. Break work until each piece has a single job.
+
+## UI
+
+- **Page** (`app/`) — compose sections, pass data and callbacks.
+- **Section** — one band of the Figma screen (hero, filters, match grid).
+- **Card / control** — one reusable unit (match card, invite button, signature pad).
+- Extract a component when JSX repeats, when a block maps 1:1 to a Figma frame, or when it would be useful on another route.
+- Compose for a **phone** width first; add breakpoints only if specified.
+
+## Features
+
+Ship in slices, for example: catalogs → listing form → match cards → invite → agreement text → drawn signature. Each slice should compile and look complete before the next.
+
+## Logic
+
+- Matching, agreement drafting, and mock lookups live in `lib/` (pure functions), not inside JSX.
+- Keep functions small; name them after the slice (`getPerfectMatches`, `draftSkillAgreement`).

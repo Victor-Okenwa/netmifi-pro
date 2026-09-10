@@ -49,5 +49,12 @@ Pass `Link`, callbacks, or `href` from `app/` when you need Next.js navigation.
 
 ## Data and env
 
-- Data access in `lib/` (or Route Handlers), not in UI components
+- Catalogs and demo rows: `mock-data/` (import `@/mock-data/universities`, `@/mock-data/skills`)
+- Matching, invites, agreements: `lib/` — not inside components
 - Typed env from `lib/env.ts` once it exists
+
+## Figma
+
+Map each frame to a section or card. Do not recreate a whole screen as a single component.
+
+Implement **mobile-first**. Treat the phone composition as the product; desktop is optional and only when specified.

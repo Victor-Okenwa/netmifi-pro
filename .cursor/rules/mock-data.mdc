@@ -1,0 +1,22 @@
+---
+description: Mock catalogs for universities, academic courses, and general skills
+globs: "mock-data/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Mock data
+
+All hackathon data lives under `mock-data/`. Import with `@/mock-data/...`. Do not embed catalogs in components.
+
+## Shape
+
+**Universities** — `UNIVERSITIES` → university → **course category** (e.g. Computer Science) → **course** `{ name, code }` (e.g. Matrices and Determinants, `MTH 111`).
+
+**General skills** — `SKILL_CATEGORIES` → category (Programming, Design, Photography, Life skill) → **skill** `{ name }` (Python, barbing, swimming).
+
+## Rules
+
+- Typed `interface`s in `mock-data/types.ts`
+- One concern per file (`universities.ts`, `skills.ts`)
+- Ids are stable slugs (`unn`, `unilag`)
+- Extend catalogs here when Figma needs more rows; do not invent a backend

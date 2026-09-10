@@ -1,70 +1,54 @@
 # NetMifi Pro — AI Code Generation Rules
 
-Hackathon Next.js app. Features built here are intended to land in `netmifi-mono` later.
-Match mono quality (types, Biome, portable UI) without copying the monorepo layout.
+Hackathon Next.js app: **course creation** (from mono, UI-only) and **skill trading** (new). Open beside `netmifi-mono` to copy design tokens, logos, and the create-course flow — not to import `@netmifi/*` packages.
+
+Judges score **design quality**. Build from **Figma**. Split pages into reusable cards, sections, and shells. Use **mock data** in `mock-data/` only. **Mobile-first** (phone layout unless Figma or a prompt says otherwise).
 
 ## Project Identity
 
 - **App**: Next.js App Router (not Vite / TanStack Router)
 - **Runtime / package manager**: Bun (`bun install`, `bun run`, `bun test`)
 - **Formatter / linter**: Biome (`biome.json`)
-- **UI**: React 19 + Tailwind CSS 4
+- **UI**: React 19 + Tailwind CSS 4 + shadcn (NetMifi tokens)
 - **Imports**: `@/` path alias (see `tsconfig.json`)
 
-This is a single Next.js app, not a Bun workspace. Do not invent `apps/*` or `@netmifi/*` packages here.
+This is a single Next.js app. Do not invent `apps/*` or `@netmifi/*` packages here.
 
 ## Next.js
 
-- Treat this Next.js version as different from older docs. Prefer `node_modules/next/dist/docs/` over training data.
-- App Router only (`app/`). No Pages Router.
-- Default to Server Components. Add `"use client"` only when the component needs state, effects, or browser APIs.
-- Do not use deprecated Next.js APIs.
+- Prefer `node_modules/next/dist/docs/` over older Next.js training data.
+- App Router only (`app/`). Default to Server Components. `"use client"` only for state, effects, or browser APIs.
 
 ## Code Style
 
 - Biome: double quotes, semicolons always, tabs (width 2), line width 100, trailing commas ES5
-- Prefer `interface` for object shapes; `type` for unions, intersections, and computed types
-- Never use `any` — use a real type, generics, `unknown`, or `never`
+- `interface` for object shapes; `type` for unions / computed types
+- Never use `any`
 - Prefer `??` over `||` for null/undefined defaults
-- Sort Tailwind classes: layout → spacing → typography → colors → effects
-- JSDoc on utility functions (`@param`, `@returns`, `@throws` when relevant)
-- Comment why, not what, in non-obvious or security-sensitive code
+- Sort Tailwind: layout → spacing → typography → colors → effects
+- JSDoc on utility functions
+- **Decompose**: one job per component; matching/agreements in `lib/`
 
 ## File Organization
 
 ```
-app/            routes, layouts, loading/error UI (Next.js only)
-components/     presentational UI (keep free of Next/data fetching)
-lib/            env, utils, server-only helpers, data access
+app/            routes, layouts (Next.js glue)
+components/     presentational UI (Figma cards, sections)
+lib/            pure logic (matching, agreements)
+mock-data/      university courses and general skills catalogs
 public/         static assets
 ```
 
-- Co-locate route-only UI under `app/` when it is not reusable
-- Put reusable UI in `components/` so it can move to `@netmifi/design` later
-- Put shared logic in `lib/` so it can move to `@netmifi/utils` / `@netmifi/env` later
+## Skill trading (summary)
 
-## Portability (later → netmifi-mono)
-
-- Presentational components: props in, JSX out — no `next/navigation`, no `next/link` inside reusable UI (pass `href` / callbacks / slots from `app/`)
-- No data fetching inside reusable components
-- Do not couple business logic to Hono, tRPC, or TanStack Router here unless the hackathon requires it
-- Env: centralize in `lib/env.ts` when secrets/config appear; never scatter `process.env`
-- Client env vars must use `NEXT_PUBLIC_`
-- Prefer libraries already used in mono when a dependency is needed (zod, date-fns, better-auth, drizzle)
-
-## TypeScript
-
-- Strict mode; `noUncheckedIndexedAccess` is on
-- `import type` for type-only imports
-- Type guards over assertions (`as`)
+Give skill(s) + optional learn skill(s) + optional money **rate** (hour / daily / weekly / bi-weekly) → **perfect** and **partial** matches → **Invite** → agreement `#<uuid>` from templates (skills or money, default penalties) → **drawn signatures**. School swap uses the same UI plus school, level (100–700), and that school’s courses.
 
 ## When Generating Code
 
-1. Follow Biome (double quotes, semicolons, tabs)
-2. Never use `any`
-3. Keep `components/` portable; keep Next.js APIs in `app/`
-4. Handle loading, empty, and error states
-5. Prefer `??` over `||` for nullish defaults
-6. Sort Tailwind classes
+1. Follow Biome and never use `any`
+2. Mobile-first: stacked phone UI unless told otherwise
+3. Split UI to match Figma frames; keep Next.js APIs in `app/`
+4. Read catalogs from `mock-data/`, not hardcoded arrays in JSX
+5. Reuse mono course-create UX without backend
+6. Handle empty, loading, and error states
 7. Use Bun, not npm/yarn/pnpm
-8. Do not import from `netmifi-mono` until we explicitly wire a workspace dependency

@@ -1,0 +1,41 @@
+---
+description: Hackathon product — course creation plus skill trading; why mono and pro sit together
+alwaysApply: true
+---
+
+# Product (NetMifi Pro hackathon)
+
+Two Cursor workspaces: **netmifi-mono** (product + design system + course-create UI) and **netmifi-pro** (this Next.js demo). They are open together so we can **reuse mono’s look and course-create flow** without wiring Hono, tRPC, or a database. Features that win here are meant to land in mono later.
+
+Judges score **design quality**. Implement from **Figma** (pasted frames/links). Prefer reusable **cards, sections, and page shells** over one-off layouts.
+
+**Viewport:** mobile-first and **mostly mobile** unless a prompt or Figma frame says otherwise. Design and verify for a phone-width layout first (`max-w-md` / stacked columns). Do not start from a desktop grid.
+
+## What we build
+
+A **course creation and skill trading** platform.
+
+### Course creation
+
+Rebuild the **existing create-course flow from mono** as UI only: mock data, local/client state, no backend.
+
+### Skill trading
+
+A learner offers a skill they have and wants another skill (or will pay). A second user does the same. We **match** them, then they **invite**, **agree**, and **sign**.
+
+1. User lists skills they will **give**, and optionally skills they want to **learn**.
+2. Optional **rate** if money can replace a skill: per hour, daily, weekly, or bi-weekly.
+3. Another user lists give / learn (learn optional if they will **pay the listed rate**).
+4. **Matching**: compare give vs learn. Surfaces **perfect** (A give = B learn and B give = A learn) and **partial** matches.
+5. The offering user sees **match cards** and can **Invite**.
+6. Invite drafts an **agreement** from our templates. Agreement ID: `#<uuid>` (example `#a1b2c3d4-…`). Text states skills in trade **or** money for listed skills/courses, plus **default penalties**.
+7. Both parties **sign** by **drawing** a signature.
+
+Two catalogs, **same UI**:
+
+- **General skill trading** — coding, barbing, photography, etc.
+- **School / course swap** — extra fields: **school**, **level** (100–700), then **course to teach** and **course to learn**. Schools: Institute of Management and Technology, University of Nigeria Nsukka, University of Ibadan, University of Lagos, University of Calabar, Nnamdi Azikiwe University. After a school is chosen, that school’s courses/codes fill the course inputs.
+
+## Data
+
+No live API. Read from [`mock-data/`](mock-data/). Do not hard-code catalogs inside components.

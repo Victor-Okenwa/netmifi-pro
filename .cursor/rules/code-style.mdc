@@ -29,6 +29,7 @@ alwaysApply: true
 
 - One primary export per file when practical
 - Co-locate related code; keep functions small
+- Split large screens into section and card components (see `decompose.mdc`)
 
 ## Comments
 
@@ -53,6 +54,8 @@ Prefer `??` for null/undefined defaults. Use `||` only when empty string / `0` /
 ## Tailwind
 
 Sort classes: layout → spacing → typography → colors → effects.
+
+Default to a **mobile** layout: single column, comfortable tap targets, no hover-only actions. Use `sm:` / `md:` only when a frame is explicitly wider.
 
 ## React
 

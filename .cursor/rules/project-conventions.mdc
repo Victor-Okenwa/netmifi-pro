@@ -11,8 +11,9 @@ Single Next.js app (not a monorepo). No `@netmifi/*` workspace packages here.
 ## Folders
 
 - `app/` — routes, layouts, `loading.tsx` / `error.tsx`, route-only composition
-- `components/` — reusable presentational UI
-- `lib/` — `env`, utils, server helpers, data access
+- `components/` — reusable presentational UI (Figma cards, sections, page shells)
+- `lib/` — `env`, matching, agreement helpers, other pure logic
+- `mock-data/` — university course catalogs and general skills
 - `public/` — static files
 - Config stays at repo root (`package.json`, `tsconfig.json`, `biome.json`, `next.config.ts`)
 
@@ -23,6 +24,7 @@ Do not force a `src/` root; Next.js uses `app/` at the project root. When portin
 ```typescript
 import { Button } from "@/components/button";
 import type { Course } from "@/lib/types/course";
+import { UNIVERSITIES } from "@/mock-data/universities";
 ```
 
 - Use `@/` instead of long relative paths

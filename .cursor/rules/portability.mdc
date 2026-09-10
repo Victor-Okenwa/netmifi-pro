@@ -11,18 +11,18 @@ netmifi-pro is a demo. Successful features should be extractable into the monore
 ## Do
 
 - Keep UI in `components/` props-based and free of Next.js
-- Put domain types and pure functions in `lib/` with JSDoc
-- Validate with zod when adding forms or API payloads (mono already uses zod)
-- Use the same naming and Biome style as mono (double quotes, tabs, no `any`)
+- Recreate mono **course create** as presentational steps + mock state (no tRPC)
+- Put matching and agreement drafting in `lib/` with JSDoc
+- Validate with zod; catalogs in `mock-data/`
 
 ## Do not
 
 - Import files from `../netmifi-mono` or add unofficial workspace links
-- Copy Hono / tRPC / TanStack Router into this repo “for later” unless the demo needs them
+- Copy Hono / tRPC / TanStack Router into this repo unless the demo needs them
 - Put business rules inside JSX
-- Hard-code secrets or scatter `process.env`
+- Hard-code university or skill lists in components
 
 ## When a feature is “done” for the hackathon
 
-Structure it as: **route in `app/`** (glue) + **UI in `components/`** + **logic in `lib/`**.
-That split is what we lift into mono (route glue is rewritten; UI and lib move).
+**route in `app/`** + **UI in `components/`** + **logic in `lib/`** + **rows in `mock-data/`**.
+Route glue is rewritten in mono; UI and lib move.
