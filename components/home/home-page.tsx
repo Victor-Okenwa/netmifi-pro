@@ -1,13 +1,17 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { EarningsCard } from "@/components/home/earnings-card";
 import { HomeGreeting } from "@/components/home/home-greeting";
+import { usePreferredCurrency } from "@/lib/currency/use-preferred-currency";
+import { MOCK_EARNINGS } from "@/mock-data/earnings";
 
 /**
- * Authenticated home screen with greeting and currency controls.
+ * Authenticated home screen with greeting, currency, and earnings.
  */
 export function HomePageClient() {
 	const { session } = useAuth();
+	const { currency, setCurrency } = usePreferredCurrency();
 
 	if (!session) {
 		return null;
@@ -15,10 +19,13 @@ export function HomePageClient() {
 
 	return (
 		<section className="px-4 py-6">
-			<HomeGreeting email={session.email} fullName={session.name} />
-			<p className="mt-6 text-muted-foreground text-sm">
-				Your skill trades and courses will show up here.
-			</p>
+			<HomeGreeting
+				currency={currency}
+				email={session.email}
+				fullName={session.name}
+				onCurrencyChange={setCurrency}
+			/>
+			<EarningsCard className="mt-5" currency={currency} earnings={MOCK_EARNINGS} />
 		</section>
 	);
 }

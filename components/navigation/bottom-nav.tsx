@@ -17,7 +17,7 @@ export function BottomNav({ items, pathname, className }: BottomNavProps) {
 		<nav
 			aria-label="Primary"
 			className={cn(
-				"fixed right-0 bottom-0 left-0 z-50 mx-auto w-full max-w-md border-border border-t bg-background px-1 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]",
+				"fixed right-0 bottom-0 left-0 z-50 mx-auto w-full max-w-md border-border border-t bg-card px-1 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]",
 				className
 			)}
 		>

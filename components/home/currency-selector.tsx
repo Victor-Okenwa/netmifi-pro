@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
 	Select,
 	SelectContent,
@@ -8,49 +7,33 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { CURRENCIES, getCurrencyOption } from "@/lib/currency/currencies";
-import { readStoredCurrency, writeStoredCurrency } from "@/lib/currency/storage";
+import { CURRENCIES, getCurrencyOption, isCurrencyCode } from "@/lib/currency/currencies";
 import type { CurrencyCode } from "@/lib/currency/types";
 import { cn } from "@/lib/utils";
 
 interface CurrencySelectorProps {
 	className?: string;
-	value?: CurrencyCode;
-	onValueChange?: (code: CurrencyCode) => void;
+	value: CurrencyCode;
+	onValueChange: (code: CurrencyCode) => void;
 }
 
 /**
  * Pill-shaped currency picker for NGN, GHS, and USD.
  */
 export function CurrencySelector({ className, value, onValueChange }: CurrencySelectorProps) {
-	const [internalValue, setInternalValue] = useState<CurrencyCode>("NGN");
-
-	useEffect(() => {
-		if (value !== undefined) {
-			return;
-		}
-		setInternalValue(readStoredCurrency());
-	}, [value]);
-
-	const selectedCode = value ?? internalValue;
-	const selected = getCurrencyOption(selectedCode);
+	const selected = getCurrencyOption(value);
 	const Flag = selected.Flag;
 
 	function handleChange(next: string) {
-		if (next !== "NGN" && next !== "GHS" && next !== "USD") {
+		if (!isCurrencyCode(next)) {
 			return;
 		}
 
-		if (value === undefined) {
-			setInternalValue(next);
-			writeStoredCurrency(next);
-		}
-
-		onValueChange?.(next);
+		onValueChange(next);
 	}
 
 	return (
-		<Select onValueChange={handleChange} value={selectedCode}>
+		<Select onValueChange={handleChange} value={value}>
 			<SelectTrigger
 				aria-label="Select currency"
 				className={cn(
@@ -61,7 +44,7 @@ export function CurrencySelector({ className, value, onValueChange }: CurrencySe
 				size="default"
 			>
 				<Flag className="size-5" />
-				<SelectValue>{selectedCode}</SelectValue>
+				<SelectValue>{value}</SelectValue>
 			</SelectTrigger>
 			<SelectContent align="end" position="popper">
 				{CURRENCIES.map((currency) => {

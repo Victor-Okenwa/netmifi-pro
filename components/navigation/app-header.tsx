@@ -30,7 +30,7 @@ export function AppHeader({
 	return (
 		<header
 			className={cn(
-				"fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-md items-center justify-between gap-3 border-border border-b bg-background px-4 py-3",
+				"fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-md items-center justify-between gap-3 border-border border-b bg-card px-4 py-3",
 				className
 			)}
 		>

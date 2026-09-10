@@ -1,19 +1,28 @@
 "use client";
 
 import { CurrencySelector } from "@/components/home/currency-selector";
+import type { CurrencyCode } from "@/lib/currency/types";
 import { getFirstName, getTimeOfDayGreeting } from "@/lib/greeting";
 import { cn } from "@/lib/utils";
 
 interface HomeGreetingProps {
 	fullName: string;
 	email: string;
+	currency: CurrencyCode;
+	onCurrencyChange: (code: CurrencyCode) => void;
 	className?: string;
 }
 
 /**
  * Home top row: time-based greeting with first name, email, and currency selector.
  */
-export function HomeGreeting({ fullName, email, className }: HomeGreetingProps) {
+export function HomeGreeting({
+	fullName,
+	email,
+	currency,
+	onCurrencyChange,
+	className,
+}: HomeGreetingProps) {
 	const greeting = getTimeOfDayGreeting();
 	const firstName = getFirstName(fullName);
 
@@ -25,7 +34,7 @@ export function HomeGreeting({ fullName, email, className }: HomeGreetingProps) 
 				</p>
 				<p className="mt-0.5 truncate text-muted-foreground text-sm">{email}</p>
 			</div>
-			<CurrencySelector className="shrink-0" />
+			<CurrencySelector className="shrink-0" onValueChange={onCurrencyChange} value={currency} />
 		</div>
 	);
 }
