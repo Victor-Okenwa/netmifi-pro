@@ -2,6 +2,7 @@
 
 Rules that guide AI code generation for **netmifi-pro** (hackathon Next.js app).
 Standards are aligned with `netmifi-mono` so course-create UI and new skill-trading can move into the monorepo later.
+**Viewport default: mobile-first / mostly phone** unless Figma or a prompt says otherwise.
 
 ## Rule Files
 
@@ -13,7 +14,7 @@ Always-on identity, product summary, and generation checklist.
 
 | File | Scope |
 | --- | --- |
-| `product.mdc` | Hackathon product, skill trading, course create, workspace pairing |
+| `product.mdc` | Hackathon product, skill trading, course create, mobile-first, workspace pairing |
 | `decompose.mdc` | Split pages and features into small pieces |
 | `mock-data.mdc` | University and skills catalog shape |
 | `code-style.mdc` | Biome, naming, React, Tailwind |
