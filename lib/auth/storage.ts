@@ -63,10 +63,11 @@ export function readSession(): AuthSession | null {
 
 	try {
 		const parsed: unknown = JSON.parse(raw);
-		if (!isAuthSession(parsed)) {
+		const session = normalizeSession(parsed);
+		if (!session) {
 			return null;
 		}
-		return parsed;
+		return session;
 	} catch {
 		return null;
 	}
@@ -100,6 +101,45 @@ export function findUserByEmail(email: string): StoredUser | undefined {
 }
 
 /**
+ * Finds a stored user by id.
+ * @param id - User id
+ * @returns The matching user, or `undefined`
+ */
+export function findUserById(id: string): StoredUser | undefined {
+	return readUsers().find((user) => user.id === id);
+}
+
+/**
+ * Updates a stored user's name and returns the updated user.
+ * @param userId - User id to update
+ * @param name - New display name
+ * @returns The updated user
+ * @throws {Error} If the user does not exist
+ */
+export function updateStoredUserName(userId: string, name: string): StoredUser {
+	const trimmed = name.trim();
+	const users = readUsers();
+	const index = users.findIndex((user) => user.id === userId);
+	if (index < 0) {
+		throw new Error("User not found");
+	}
+
+	const existing = users[index];
+	if (!existing) {
+		throw new Error("User not found");
+	}
+
+	const updated: StoredUser = {
+		...existing,
+		name: trimmed,
+	};
+	const nextUsers = [...users];
+	nextUsers[index] = updated;
+	writeUsers(nextUsers);
+	return updated;
+}
+
+/**
  * Type guard for StoredUser objects.
  * @param value - Unknown parse result
  * @returns Whether value is a StoredUser
@@ -124,21 +164,35 @@ function isStoredUser(value: unknown): value is StoredUser {
 }
 
 /**
- * Type guard for AuthSession objects.
+ * Normalizes a parsed session, filling signedInAt for older stored sessions.
  * @param value - Unknown parse result
- * @returns Whether value is an AuthSession
+ * @returns A valid AuthSession, or `null`
  */
-function isAuthSession(value: unknown): value is AuthSession {
+function normalizeSession(value: unknown): AuthSession | null {
 	if (typeof value !== "object" || value === null) {
-		return false;
+		return null;
 	}
 
-	return (
-		"userId" in value &&
-		"name" in value &&
-		"email" in value &&
-		typeof value.userId === "string" &&
-		typeof value.name === "string" &&
-		typeof value.email === "string"
-	);
+	if (
+		!("userId" in value) ||
+		!("name" in value) ||
+		!("email" in value) ||
+		typeof value.userId !== "string" ||
+		typeof value.name !== "string" ||
+		typeof value.email !== "string"
+	) {
+		return null;
+	}
+
+	const signedInAt =
+		"signedInAt" in value && typeof value.signedInAt === "string"
+			? value.signedInAt
+			: new Date().toISOString();
+
+	return {
+		userId: value.userId,
+		name: value.name,
+		email: value.email,
+		signedInAt,
+	};
 }

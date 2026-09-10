@@ -11,8 +11,10 @@ import {
 } from "react";
 import {
 	findUserByEmail,
+	findUserById,
 	readSession,
 	readUsers,
+	updateStoredUserName,
 	writeSession,
 	writeUsers,
 } from "@/lib/auth/storage";
@@ -35,12 +37,29 @@ interface AuthContextValue {
 	signUp: (input: SignUpInput) => Promise<AuthSession>;
 	signIn: (input: SignInInput) => Promise<AuthSession>;
 	signOut: () => void;
+	updateName: (name: string) => Promise<AuthSession>;
+	getCurrentUser: () => StoredUser | null;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 interface AuthProviderProps {
 	children: ReactNode;
+}
+
+/**
+ * Builds a session object from a stored user and sign-in timestamp.
+ * @param user - Stored user record
+ * @param signedInAt - ISO timestamp for this session
+ * @returns Auth session payload
+ */
+function toSession(user: StoredUser, signedInAt: string): AuthSession {
+	return {
+		userId: user.id,
+		name: user.name,
+		email: user.email,
+		signedInAt,
+	};
 }
 
 /**
@@ -51,7 +70,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 	const [isReady, setIsReady] = useState(false);
 
 	useEffect(() => {
-		setSession(readSession());
+		const existing = readSession();
+		if (existing) {
+			writeSession(existing);
+		}
+		setSession(existing);
 		setIsReady(true);
 	}, []);
 
@@ -64,21 +87,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 			throw new Error("An account with this email already exists. Sign in instead.");
 		}
 
+		const now = new Date().toISOString();
 		const user: StoredUser = {
 			id: crypto.randomUUID(),
 			name,
 			email,
 			password,
-			createdAt: new Date().toISOString(),
+			createdAt: now,
 		};
 
 		writeUsers([...readUsers(), user]);
 
-		const nextSession: AuthSession = {
-			userId: user.id,
-			name: user.name,
-			email: user.email,
-		};
+		const nextSession = toSession(user, now);
 		writeSession(nextSession);
 		setSession(nextSession);
 		return nextSession;
@@ -96,11 +116,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 			throw new Error("Incorrect password. Try again.");
 		}
 
-		const nextSession: AuthSession = {
-			userId: user.id,
-			name: user.name,
-			email: user.email,
-		};
+		const nextSession = toSession(user, new Date().toISOString());
 		writeSession(nextSession);
 		setSession(nextSession);
 		return nextSession;
@@ -111,6 +127,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
 		setSession(null);
 	}, []);
 
+	const updateName = useCallback(
+		async (name: string): Promise<AuthSession> => {
+			if (!session) {
+				throw new Error("You must be signed in to update your name");
+			}
+
+			const trimmed = name.trim();
+			if (trimmed.length < 2) {
+				throw new Error("Name must be at least 2 characters");
+			}
+
+			const updated = updateStoredUserName(session.userId, trimmed);
+			const nextSession = toSession(updated, session.signedInAt);
+			writeSession(nextSession);
+			setSession(nextSession);
+			return nextSession;
+		},
+		[session]
+	);
+
+	const getCurrentUser = useCallback((): StoredUser | null => {
+		if (!session) {
+			return null;
+		}
+		return findUserById(session.userId) ?? null;
+	}, [session]);
+
 	const value = useMemo(
 		() => ({
 			session,
@@ -118,8 +161,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 			signUp,
 			signIn,
 			signOut,
+			updateName,
+			getCurrentUser,
 		}),
-		[session, isReady, signUp, signIn, signOut]
+		[session, isReady, signUp, signIn, signOut, updateName, getCurrentUser]
 	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

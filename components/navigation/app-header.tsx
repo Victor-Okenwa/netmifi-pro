@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { LogoIcon } from "@/components/brand/logo-icon";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { getNameInitial } from "@/lib/auth/display";
 import { cn } from "@/lib/utils";
 
 interface AppHeaderProps {
@@ -13,7 +16,7 @@ interface AppHeaderProps {
 }
 
 /**
- * Top app bar: brand on the left, support and notifications on the right.
+ * Top app bar: brand on the left; support, notifications, and account avatar on the right.
  */
 export function AppHeader({
 	userName,
@@ -22,6 +25,8 @@ export function AppHeader({
 	onSignOut,
 	className,
 }: AppHeaderProps) {
+	const initial = getNameInitial(userName ?? "");
+
 	return (
 		<header
 			className={cn(
@@ -31,21 +36,9 @@ export function AppHeader({
 		>
 			<Link className="flex min-w-0 items-center gap-2" href="/">
 				<LogoIcon className="h-8 w-auto shrink-0" />
-				<span className="truncate font-semibold text-lg tracking-tight">
-					Netmifi
-				</span>
+				<span className="truncate font-semibold text-lg tracking-tight">Netmifi</span>
 			</Link>
 			<div className="flex shrink-0 items-center gap-2">
-				{onSignOut ? (
-					<button
-						aria-label="Sign out"
-						className="flex size-10 items-center justify-center rounded-full border border-border text-muted-foreground"
-						onClick={onSignOut}
-						type="button"
-					>
-						<SignOutIcon />
-					</button>
-				) : null}
 				<button
 					aria-label="Support"
 					className="flex size-10 items-center justify-center rounded-full border border-border text-muted-foreground"
@@ -62,30 +55,40 @@ export function AppHeader({
 				>
 					<BellIcon />
 				</button>
+				{userName && onSignOut ? (
+					<Popover>
+						<PopoverTrigger asChild>
+							<button
+								aria-label="Account menu"
+								className="rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+								type="button"
+							>
+								<Avatar className="size-10 bg-primary text-primary-foreground after:border-primary/30">
+									<AvatarFallback className="bg-primary font-semibold text-primary-foreground text-sm">
+										{initial}
+									</AvatarFallback>
+								</Avatar>
+							</button>
+						</PopoverTrigger>
+						<PopoverContent align="end" className="w-48 gap-1 p-1.5">
+							<Link
+								className="flex items-center rounded-md px-2.5 py-2 text-sm hover:bg-muted"
+								href="/profile"
+							>
+								Profile
+							</Link>
+							<button
+								className="flex w-full items-center rounded-md px-2.5 py-2 text-left text-destructive text-sm hover:bg-muted"
+								onClick={onSignOut}
+								type="button"
+							>
+								Sign out
+							</button>
+						</PopoverContent>
+					</Popover>
+				) : null}
 			</div>
 		</header>
-	);
-}
-
-function SignOutIcon() {
-	return (
-		<svg
-			aria-hidden
-			fill="none"
-			height="20"
-			viewBox="0 0 24 24"
-			width="20"
-			xmlns="http://www.w3.org/2000/svg"
-		>
-			<title>Sign out</title>
-			<path
-				d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H3.75"
-				stroke="currentColor"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth="1.6"
-			/>
-		</svg>
 	);
 }
 
