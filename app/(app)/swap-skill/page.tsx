@@ -1,10 +1,5 @@
-import { ComingSoonPage } from "@/components/shared/coming-soon-page";
+import { SwapSkillPage } from "@/components/swap-skill/swap-skill-page";
 
-export default function SwapSkillPage() {
-	return (
-		<ComingSoonPage
-			description="Match with learners, invite partners, and trade skills from here."
-			title="Swap Skill"
-		/>
-	);
+export default function SwapSkillRoute() {
+	return <SwapSkillPage />;
 }
