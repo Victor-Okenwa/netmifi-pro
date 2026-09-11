@@ -152,8 +152,8 @@ export function GeneralSkillExchangeForm() {
 				</div>
 			</div>
 
-			<div className="space-y-2">
-				<p className="flex items-start gap-1.5 text-primary text-xs leading-snug">
+			<div className="space-y-2 bg-primary-light rounded-2xl">
+				<p className="flex items-start gap-1.5 text-primary text-xs leading-snug pt-3 px-4">
 					<ExclamationCircleIcon className="mt-0.5 size-4 shrink-0" />
 					<span>
 						Set rate incase the learner doesn't have a skill to swap or trade with your own skills
@@ -207,7 +207,7 @@ export function GeneralSkillExchangeForm() {
 				/>
 			</div>
 
-			<div className="space-y-2">
+			<div className="space-y-2 bg-card py-5 px-3 rounded-2xl">
 				<p className="font-medium text-muted-foreground text-xs">Available On</p>
 				<DayPicker onValueChange={setAvailableDays} value={availableDays} />
 			</div>
