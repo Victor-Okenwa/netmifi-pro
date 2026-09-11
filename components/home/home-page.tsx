@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/components/auth/auth-provider";
 import { EarningsCard } from "@/components/home/earnings-card";
+import { HomeFeedSection } from "@/components/home/home-feed-section";
 import { HomeGreeting } from "@/components/home/home-greeting";
 import { PromoCarousel } from "@/components/home/promo-carousel";
 import { usePreferredCurrency } from "@/lib/currency/use-preferred-currency";
@@ -28,6 +29,7 @@ export function HomePageClient() {
 			/>
 			<EarningsCard className="mt-5" currency={currency} earnings={MOCK_EARNINGS} />
 			<PromoCarousel className="mt-5" />
+			<HomeFeedSection className="mt-6" currency={currency} />
 		</section>
 	);
 }

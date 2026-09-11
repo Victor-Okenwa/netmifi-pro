@@ -59,3 +59,68 @@ export function formatEarnedToday(amount: number): string {
 export function formatHiddenBalance(currency: CurrencyCode): string {
 	return `${currencyPrefix(currency)}••••••`;
 }
+
+/**
+ * Formats a whole-currency amount for transaction rows (e.g. "₦20,000").
+ * @param amount - Amount in display currency
+ * @param currency - Currency code
+ * @returns Prefixed whole-number string
+ */
+export function formatWholeAmount(amount: number, currency: CurrencyCode): string {
+	const formatted = new Intl.NumberFormat("en-US", {
+		maximumFractionDigits: 0,
+	}).format(Math.round(amount));
+
+	if (currency === "NGN") {
+		return `₦${formatted}`;
+	}
+
+	return `${currencyPrefix(currency)}${formatted}`;
+}
+
+/**
+ * Formats a transaction timestamp like "Sep 8th, 01:20:30".
+ * @param iso - ISO timestamp
+ * @returns Localized display string
+ */
+export function formatTransactionTimestamp(iso: string): string {
+	const date = new Date(iso);
+	if (Number.isNaN(date.getTime())) {
+		return "Unknown";
+	}
+
+	const month = new Intl.DateTimeFormat("en-US", { month: "short" }).format(date);
+	const day = date.getDate();
+	const ordinal = ordinalSuffix(day);
+	const time = new Intl.DateTimeFormat("en-GB", {
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+		hour12: false,
+	}).format(date);
+
+	return `${month} ${day}${ordinal}, ${time}`;
+}
+
+/**
+ * Returns the English ordinal suffix for a day of month.
+ * @param day - Day of month (1–31)
+ * @returns "st" | "nd" | "rd" | "th"
+ */
+function ordinalSuffix(day: number): string {
+	const mod100 = day % 100;
+	if (mod100 >= 11 && mod100 <= 13) {
+		return "th";
+	}
+
+	switch (day % 10) {
+		case 1:
+			return "st";
+		case 2:
+			return "nd";
+		case 3:
+			return "rd";
+		default:
+			return "th";
+	}
+}
