@@ -26,7 +26,7 @@ export function SwapOptionCard({
 	return (
 		<Link
 			className={cn(
-				"flex items-start gap-3 rounded-2xl border px-4 py-4 transition-colors",
+				"flex flex-col items-center text-center gap-3 rounded-lg border px-4 py-7 transition-colors",
 				emphasized
 					? "border-primary bg-primary-light text-primary"
 					: "border-border bg-card text-foreground",
@@ -47,12 +47,7 @@ export function SwapOptionCard({
 				>
 					{title}
 				</span>
-				<span
-					className={cn(
-						"mt-1 block text-sm leading-relaxed",
-						emphasized ? "text-primary/80" : "text-muted-foreground"
-					)}
-				>
+				<span className={cn("mt-1 block text-sm leading-relaxed text-muted-foreground")}>
 					{description}
 				</span>
 			</span>

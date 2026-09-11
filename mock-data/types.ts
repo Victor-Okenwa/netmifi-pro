@@ -1,6 +1,6 @@
 export type AcademicLevel = 100 | 200 | 300 | 400 | 500 | 600 | 700;
 
-export type RatePeriod = "hour" | "daily" | "weekly" | "bi-weekly";
+export type RatePeriod = "hour" | "daily" | "weekly" | "monthly";
 
 export type UniversityId = "imt" | "unn" | "ui" | "unilag" | "unical" | "unizik";
 

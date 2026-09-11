@@ -29,3 +29,19 @@ const RATES_FROM_NGN: Record<CurrencyCode, number> = {
 export function convertFromNgn(amountNgn: number, currency: CurrencyCode): number {
 	return amountNgn * RATES_FROM_NGN[currency];
 }
+
+/**
+ * Converts an amount between display currencies via NGN.
+ * @param amount - Amount in the source currency
+ * @param from - Source currency
+ * @param to - Target currency
+ * @returns Converted amount
+ */
+export function convertCurrency(amount: number, from: CurrencyCode, to: CurrencyCode): number {
+	if (from === to) {
+		return amount;
+	}
+
+	const amountNgn = amount / RATES_FROM_NGN[from];
+	return convertFromNgn(amountNgn, to);
+}

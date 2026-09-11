@@ -1,11 +1,7 @@
+import { Building, ChevronLeft, SchoolIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { SwapOptionCard } from "@/components/swap-skill/swap-option-card";
-import {
-	BackChevronIcon,
-	ClassicalBuildingIcon,
-	SchoolBuildingIcon,
-} from "@/components/swap-skill/swap-skill-icons";
 import { cn } from "@/lib/utils";
 
 interface SwapSkillPageProps {
@@ -25,7 +21,7 @@ export function SwapSkillPage({ className, backHref = "/" }: SwapSkillPageProps)
 					className="absolute top-1/2 left-0 flex size-10 -translate-y-1/2 items-center justify-center text-foreground"
 					href={backHref}
 				>
-					<BackChevronIcon />
+					<ChevronLeft />
 				</Link>
 				<h1 className="font-bold text-xl tracking-tight">Swap Skill</h1>
 			</header>
@@ -50,13 +46,13 @@ export function SwapSkillPage({ className, backHref = "/" }: SwapSkillPageProps)
 					description="Swap professional skills. e.g. Design for Coding, English for Finance"
 					emphasized
 					href="/swap-skill/general"
-					icon={<ClassicalBuildingIcon />}
+					icon={<Building />}
 					title="General Skill Swap"
 				/>
 				<SwapOptionCard
 					description="Swap school courses. e.g. Math for Biology, Physics for Economics"
 					href="/swap-skill/school"
-					icon={<SchoolBuildingIcon />}
+					icon={<SchoolIcon />}
 					title="School Course Swap"
 				/>
 			</div>
