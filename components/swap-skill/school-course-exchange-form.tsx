@@ -2,6 +2,7 @@
 
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { CurrencySelector } from "@/components/home/currency-selector";
@@ -33,6 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { currencyPrefix, formatWholeAmount } from "@/lib/currency/format";
 import type { CurrencyCode } from "@/lib/currency/types";
 import { usePreferredCurrency } from "@/lib/currency/use-preferred-currency";
+import { writeSwapOffer } from "@/lib/matching/offer-storage";
 import { cn } from "@/lib/utils";
 import { ACADEMIC_LEVELS, type WeekdayId } from "@/mock-data/constants";
 import { convertCurrency } from "@/mock-data/earnings";
@@ -42,6 +44,7 @@ import type { AcademicLevel, RatePeriod, UniversityId } from "@/mock-data/types"
  * School course swap form: level, school, courses, rate, and availability.
  */
 export function SchoolCourseExchangeForm() {
+	const router = useRouter();
 	const { currency, setCurrency } = usePreferredCurrency();
 	const [level, setLevel] = useState<AcademicLevel | null>(null);
 	const [universityId, setUniversityId] = useState<UniversityId | null>(null);
@@ -91,17 +94,32 @@ export function SchoolCourseExchangeForm() {
 			return;
 		}
 
-		if (teachEnabled && teachCourses.length === 0) {
+		const teach = teachEnabled ? teachCourses : [];
+		const learn = learnEnabled ? learnCourses : [];
+
+		if (teach.length === 0) {
 			toast.error("Add at least one course you can teach");
 			return;
 		}
 
-		if (learnEnabled && learnCourses.length === 0 && parsedAmount <= 0) {
+		if (learn.length === 0 && parsedAmount <= 0) {
 			toast.error("Add a course to learn or set a rate");
 			return;
 		}
 
-		toast.success("Looking for course matches");
+		writeSwapOffer({
+			kind: "school",
+			teach,
+			learn,
+			rateAmount: parsedAmount,
+			ratePeriod,
+			currency,
+			universityId,
+			level,
+			openToOtherSchools,
+		});
+
+		router.push("/swap-skill/matches");
 	}
 
 	return (

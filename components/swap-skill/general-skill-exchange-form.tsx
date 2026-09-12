@@ -2,6 +2,7 @@
 
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { CurrencySelector } from "@/components/home/currency-selector";
@@ -25,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { currencyPrefix, formatWholeAmount } from "@/lib/currency/format";
 import type { CurrencyCode } from "@/lib/currency/types";
 import { usePreferredCurrency } from "@/lib/currency/use-preferred-currency";
+import { writeSwapOffer } from "@/lib/matching/offer-storage";
 import { cn } from "@/lib/utils";
 import type { WeekdayId } from "@/mock-data/constants";
 import { convertCurrency } from "@/mock-data/earnings";
@@ -34,6 +36,7 @@ import type { RatePeriod } from "@/mock-data/types";
  * General skill exchange form matching the swap-skill flow design.
  */
 export function GeneralSkillExchangeForm() {
+	const router = useRouter();
 	const { currency, setCurrency } = usePreferredCurrency();
 	const [teachEnabled, setTeachEnabled] = useState(true);
 	const [learnEnabled, setLearnEnabled] = useState(true);
@@ -64,21 +67,33 @@ export function GeneralSkillExchangeForm() {
 			return;
 		}
 
-		if (teachEnabled && teachSkills.length === 0) {
+		const teach = teachEnabled ? teachSkills : [];
+		const learn = learnEnabled ? learnSkills : [];
+
+		if (teach.length === 0) {
 			toast.error("Add at least one skill you can teach");
 			return;
 		}
 
-		if (learnEnabled && learnSkills.length === 0 && parsedAmount <= 0) {
+		if (learn.length === 0 && parsedAmount <= 0) {
 			toast.error("Add a skill to learn or set a rate");
 			return;
 		}
 
-		toast.success("Swap listing created");
+		writeSwapOffer({
+			kind: "general",
+			teach,
+			learn,
+			rateAmount: parsedAmount,
+			ratePeriod,
+			currency,
+		});
+
+		router.push("/swap-skill/matches");
 	}
 
 	return (
-		<form className="flex flex-col gap-5 px-4 pb-6 pt-2" onSubmit={handleSubmit}>
+		<form className="flex flex-col gap-5 px-4 pt-2 pb-6" onSubmit={handleSubmit}>
 			<div>
 				<Breadcrumb>
 					<BreadcrumbList className="text-xs">
@@ -153,8 +168,8 @@ export function GeneralSkillExchangeForm() {
 				</div>
 			</div>
 
-			<div className="space-y-2 bg-primary-light rounded-2xl">
-				<p className="flex items-start gap-1.5 text-primary text-xs leading-snug pt-3 px-4">
+			<div className="space-y-2 rounded-2xl bg-primary-light">
+				<p className="flex items-start gap-1.5 px-4 pt-3 text-primary text-xs leading-snug">
 					<ExclamationCircleIcon className="mt-0.5 size-4 shrink-0" />
 					<span>
 						Set rate incase the learner doesn't have a skill to swap or trade with your own skills
@@ -208,7 +223,7 @@ export function GeneralSkillExchangeForm() {
 				/>
 			</div>
 
-			<div className="space-y-2 bg-card py-5 px-3 rounded-2xl">
+			<div className="space-y-2 rounded-2xl bg-card px-3 py-5">
 				<p className="font-medium text-muted-foreground text-xs">Available On</p>
 				<DayPicker onValueChange={setAvailableDays} value={availableDays} />
 			</div>
