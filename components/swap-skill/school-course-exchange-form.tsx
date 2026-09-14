@@ -34,7 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { currencyPrefix, formatWholeAmount } from "@/lib/currency/format";
 import type { CurrencyCode } from "@/lib/currency/types";
 import { usePreferredCurrency } from "@/lib/currency/use-preferred-currency";
-import { writeSwapOffer } from "@/lib/matching/offer-storage";
+import { buildMatchesHref, writeSwapOffer } from "@/lib/matching/offer-storage";
 import { cn } from "@/lib/utils";
 import { ACADEMIC_LEVELS, type WeekdayId } from "@/mock-data/constants";
 import { convertCurrency } from "@/mock-data/earnings";
@@ -107,8 +107,8 @@ export function SchoolCourseExchangeForm() {
 			return;
 		}
 
-		writeSwapOffer({
-			kind: "school",
+		const offer = {
+			kind: "school" as const,
 			teach,
 			learn,
 			rateAmount: parsedAmount,
@@ -117,9 +117,10 @@ export function SchoolCourseExchangeForm() {
 			universityId,
 			level,
 			openToOtherSchools,
-		});
+		};
 
-		router.push("/swap-skill/matches");
+		writeSwapOffer(offer);
+		router.push(buildMatchesHref(offer));
 	}
 
 	return (

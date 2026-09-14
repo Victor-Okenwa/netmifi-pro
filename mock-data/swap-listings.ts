@@ -1,6 +1,7 @@
 import type { SwapListing } from "@/lib/matching/types";
+import { getAllSkillNames } from "@/lib/skills/catalog";
 import { formatCourseLabel } from "@/lib/universities/catalog";
-import type { AcademicCourse, UniversityId } from "@/mock-data/types";
+import type { AcademicCourse, RatePeriod, UniversityId } from "@/mock-data/types";
 import { UNIVERSITIES } from "@/mock-data/universities";
 
 /**
@@ -25,11 +26,178 @@ function course(universityId: UniversityId, code: string): string {
 	return code;
 }
 
+const FIRST_NAMES = [
+	"Victony",
+	"Gideon",
+	"Onyekachi",
+	"Adaobi",
+	"Chinedu",
+	"Funke",
+	"Ibrahim",
+	"Ngozi",
+	"Tunde",
+	"Amaka",
+	"Kemi",
+	"Samuel",
+	"Blessing",
+	"David",
+	"Chioma",
+	"Ebuka",
+	"Tola",
+	"Seyi",
+	"Adeola",
+	"Esther",
+];
+
+const LAST_NAMES = [
+	"Darey",
+	"Jefferson",
+	"Nnaemena",
+	"Okeke",
+	"Eze",
+	"Adeyemi",
+	"Musa",
+	"Umeh",
+	"Bakare",
+	"Obi",
+	"Balogun",
+	"Okoro",
+	"Etuk",
+	"Nwosu",
+	"Nwankwo",
+	"Adebayo",
+	"Ogunleye",
+	"Fashola",
+	"Bassey",
+	"Okonkwo",
+];
+
+const RATE_PERIODS: RatePeriod[] = ["hour", "daily", "weekly", "monthly"];
+
 /**
- * Marketplace listings for general skill and school course matching.
+ * Builds general listings so every catalog skill appears as teach and learn.
+ * @returns Generated general listings
  */
-export const SWAP_LISTINGS: SwapListing[] = [
-	// —— General perfect / partial fodder ——
+function buildGeneralCatalogListings(): SwapListing[] {
+	const skills = getAllSkillNames();
+	const listings: SwapListing[] = [];
+
+	for (let index = 0; index < skills.length; index += 1) {
+		const teachSkill = skills[index];
+		const learnSkill = skills[(index + 3) % skills.length];
+		const learnSkillB = skills[(index + 7) % skills.length];
+		if (!teachSkill || !learnSkill || !learnSkillB) {
+			continue;
+		}
+
+		const first = FIRST_NAMES[index % FIRST_NAMES.length] ?? "Alex";
+		const last = LAST_NAMES[(index * 3) % LAST_NAMES.length] ?? "User";
+		const withRate = index % 3 === 0;
+
+		listings.push({
+			id: `gen-catalog-${index}`,
+			kind: "general",
+			name: `${first} ${last}`,
+			verified: index % 2 === 0,
+			rating: 4 + (index % 10) / 10,
+			ratingPercent: 40 + (index % 50),
+			teaches: [teachSkill, skills[(index + 1) % skills.length] ?? teachSkill],
+			wantsToLearn: [learnSkill, learnSkillB],
+			listedAt: new Date(
+				Date.UTC(2026, 9, 1 + (index % 28), 8 + (index % 10), 15, 30)
+			).toISOString(),
+			...(withRate
+				? {
+						rateAmountNgn: 1000 + index * 150,
+						ratePeriod: RATE_PERIODS[index % RATE_PERIODS.length],
+					}
+				: {}),
+		});
+	}
+
+	// Dedicated open buyers (rate, no learn skills) for each teach cluster
+	for (let index = 0; index < skills.length; index += 4) {
+		const skill = skills[index];
+		if (!skill) {
+			continue;
+		}
+		listings.push({
+			id: `gen-buyer-${index}`,
+			kind: "general",
+			name: `${FIRST_NAMES[(index + 5) % FIRST_NAMES.length]} ${LAST_NAMES[(index + 2) % LAST_NAMES.length]}`,
+			verified: true,
+			rating: 4.5,
+			ratingPercent: 60,
+			teaches: [skills[(index + 2) % skills.length] ?? skill],
+			wantsToLearn: [],
+			listedAt: new Date(Date.UTC(2026, 10, 1 + (index % 20), 12, 0, 0)).toISOString(),
+			rateAmountNgn: 2500 + index * 100,
+			ratePeriod: "weekly",
+		});
+	}
+
+	return listings;
+}
+
+/**
+ * Builds school listings covering courses across universities.
+ * @returns Generated school listings
+ */
+function buildSchoolCatalogListings(): SwapListing[] {
+	const listings: SwapListing[] = [];
+	let counter = 0;
+
+	for (const university of UNIVERSITIES) {
+		const allCourses = university.categories.flatMap((category) =>
+			category.courses.map((item) => formatCourseLabel(item))
+		);
+
+		for (let index = 0; index < allCourses.length; index += 2) {
+			const teachA = allCourses[index];
+			const teachB = allCourses[(index + 1) % allCourses.length];
+			const learnA = allCourses[(index + 2) % allCourses.length];
+			const learnB = allCourses[(index + 3) % allCourses.length];
+			if (!teachA || !learnA) {
+				continue;
+			}
+
+			const first = FIRST_NAMES[counter % FIRST_NAMES.length] ?? "Student";
+			const last = LAST_NAMES[(counter * 2) % LAST_NAMES.length] ?? "Scholar";
+			const withRate = counter % 4 === 0;
+
+			listings.push({
+				id: `sch-catalog-${university.id}-${counter}`,
+				kind: "school",
+				name: `${first} ${last}`,
+				verified: counter % 2 === 0,
+				rating: 4 + (counter % 9) / 10,
+				ratingPercent: 45 + (counter % 40),
+				teaches: teachB ? [teachA, teachB] : [teachA],
+				wantsToLearn: learnB ? [learnA, learnB] : [learnA],
+				listedAt: new Date(
+					Date.UTC(2026, 8, 1 + (counter % 27), 9 + (counter % 8), 20, 10)
+				).toISOString(),
+				universityId: university.id,
+				level: ([100, 200, 300, 400] as const)[counter % 4],
+				openToOtherSchools: counter % 3 === 0,
+				...(withRate
+					? {
+							rateAmountNgn: 1200 + counter * 80,
+							ratePeriod: RATE_PERIODS[counter % RATE_PERIODS.length],
+						}
+					: {}),
+			});
+			counter += 1;
+		}
+	}
+
+	return listings;
+}
+
+/**
+ * Hand-authored showcase listings (Figma-style names) plus catalog-wide coverage.
+ */
+const HANDCRAFTED_LISTINGS: SwapListing[] = [
 	{
 		id: "gen-victony",
 		kind: "general",
@@ -90,88 +258,7 @@ export const SWAP_LISTINGS: SwapListing[] = [
 		ratePeriod: "weekly",
 	},
 	{
-		id: "gen-chinedu",
-		kind: "general",
-		name: "Chinedu Eze",
-		verified: false,
-		rating: 4.2,
-		ratingPercent: 49,
-		teaches: ["Barbing", "Cooking"],
-		wantsToLearn: ["Mobile development", "JavaScript"],
-		listedAt: "2026-11-12T11:33:02.000Z",
-	},
-	{
-		id: "gen-funke",
-		kind: "general",
-		name: "Funke Adeyemi",
-		verified: true,
-		rating: 4.9,
-		ratingPercent: 80,
-		teaches: ["Portrait photography", "Photo editing", "Videography"],
-		wantsToLearn: ["Brand identity", "Illustration"],
-		listedAt: "2026-11-10T19:40:55.000Z",
-	},
-	{
-		id: "gen-ibrahim",
-		kind: "general",
-		name: "Ibrahim Musa",
-		verified: true,
-		rating: 4.4,
-		ratingPercent: 52,
-		teaches: ["Hausa", "Personal finance", "Driving"],
-		wantsToLearn: ["Web development", "SQL"],
-		listedAt: "2026-11-08T07:18:29.000Z",
-		rateAmountNgn: 1500,
-		ratePeriod: "daily",
-	},
-	{
-		id: "gen-ngozi",
-		kind: "general",
-		name: "Ngozi Umeh",
-		verified: true,
-		rating: 4.8,
-		ratingPercent: 69,
-		teaches: ["UX research", "Figma", "UI design"],
-		wantsToLearn: ["TypeScript", "Go"],
-		listedAt: "2026-11-05T13:27:16.000Z",
-	},
-	{
-		id: "gen-tunde",
-		kind: "general",
-		name: "Tunde Bakare",
-		verified: false,
-		rating: 4.1,
-		ratingPercent: 44,
-		teaches: ["Guitar", "Vocals", "Music production"],
-		wantsToLearn: ["Video editing", "Product photography"],
-		listedAt: "2026-11-02T21:09:03.000Z",
-	},
-	{
-		id: "gen-amaka",
-		kind: "general",
-		name: "Amaka Obi",
-		verified: true,
-		rating: 4.7,
-		ratingPercent: 66,
-		teaches: ["Java", "C++", "Data analysis"],
-		wantsToLearn: ["Figma", "UI design"],
-		listedAt: "2026-10-30T10:55:41.000Z",
-		rateAmountNgn: 5000,
-		ratePeriod: "monthly",
-	},
-	{
-		id: "gen-kemi",
-		kind: "general",
-		name: "Kemi Balogun",
-		verified: true,
-		rating: 4.6,
-		ratingPercent: 61,
-		teaches: ["Yoruba", "Cooking", "Swimming"],
-		wantsToLearn: ["Python", "Web development"],
-		listedAt: "2026-10-28T15:14:37.000Z",
-	},
-	{
-		id: "gen-samuel",
+		id: "gen-samuel-buyer",
 		kind: "general",
 		name: "Samuel Okoro",
 		verified: true,
@@ -183,30 +270,6 @@ export const SWAP_LISTINGS: SwapListing[] = [
 		rateAmountNgn: 4000,
 		ratePeriod: "weekly",
 	},
-	{
-		id: "gen-blessing",
-		kind: "general",
-		name: "Blessing Etuk",
-		verified: false,
-		rating: 4.0,
-		ratingPercent: 41,
-		teaches: ["Illustration", "Graphic design"],
-		wantsToLearn: ["Igbo", "English"],
-		listedAt: "2026-10-22T18:02:58.000Z",
-	},
-	{
-		id: "gen-david",
-		kind: "general",
-		name: "David Nwosu",
-		verified: true,
-		rating: 4.8,
-		ratingPercent: 72,
-		teaches: ["Go", "SQL", "Python"],
-		wantsToLearn: ["UX research", "Public speaking"],
-		listedAt: "2026-10-20T12:11:06.000Z",
-	},
-
-	// —— School listings (UNN) ——
 	{
 		id: "sch-unn-chioma",
 		kind: "school",
@@ -238,36 +301,6 @@ export const SWAP_LISTINGS: SwapListing[] = [
 		openToOtherSchools: true,
 	},
 	{
-		id: "sch-unn-ifa",
-		kind: "school",
-		name: "Ifunanya Eze",
-		verified: true,
-		rating: 4.5,
-		ratingPercent: 57,
-		teaches: [course("unn", "COS 301"), course("unn", "COS 341")],
-		wantsToLearn: [course("unn", "STA 311"), course("unn", "MTH 311")],
-		listedAt: "2026-11-19T17:22:40.000Z",
-		universityId: "unn",
-		level: 300,
-		openToOtherSchools: false,
-	},
-	{
-		id: "sch-unn-obi",
-		kind: "school",
-		name: "Obinna Uche",
-		verified: false,
-		rating: 4.2,
-		ratingPercent: 48,
-		teaches: [course("unn", "STA 111"), course("unn", "STA 211")],
-		wantsToLearn: [course("unn", "COS 102"), course("unn", "COS 202")],
-		listedAt: "2026-11-14T11:05:33.000Z",
-		universityId: "unn",
-		level: 200,
-		openToOtherSchools: true,
-	},
-
-	// —— School listings (UNILAG) ——
-	{
 		id: "sch-unilag-tola",
 		kind: "school",
 		name: "Tola Adebayo",
@@ -297,130 +330,16 @@ export const SWAP_LISTINGS: SwapListing[] = [
 		ratePeriod: "weekly",
 		openToOtherSchools: true,
 	},
-	{
-		id: "sch-unilag-bimpe",
-		kind: "school",
-		name: "Bimpe Lawal",
-		verified: true,
-		rating: 4.4,
-		ratingPercent: 53,
-		teaches: [course("unilag", "CSC 220"), course("unilag", "CSC 314")],
-		wantsToLearn: [course("unilag", "CSC 322"), course("unilag", "MTH 211")],
-		listedAt: "2026-11-11T16:28:47.000Z",
-		universityId: "unilag",
-		level: 200,
-		openToOtherSchools: false,
-	},
+];
 
-	// —— School listings (UI) ——
-	{
-		id: "sch-ui-adeola",
-		kind: "school",
-		name: "Adeola Fashola",
-		verified: true,
-		rating: 4.7,
-		ratingPercent: 65,
-		teaches: [course("ui", "CSC 101"), course("ui", "CSC 102")],
-		wantsToLearn: [course("ui", "MAT 111"), course("ui", "MAT 121")],
-		listedAt: "2026-11-23T10:12:29.000Z",
-		universityId: "ui",
-		level: 100,
-		openToOtherSchools: true,
-	},
-	{
-		id: "sch-ui-kunle",
-		kind: "school",
-		name: "Kunle Akinwale",
-		verified: false,
-		rating: 4.3,
-		ratingPercent: 51,
-		teaches: [course("ui", "MAT 111"), course("ui", "STA 121")],
-		wantsToLearn: [course("ui", "CSC 101"), course("ui", "CSC 201")],
-		listedAt: "2026-11-09T13:44:01.000Z",
-		universityId: "ui",
-		level: 100,
-		rateAmountNgn: 1800,
-		ratePeriod: "daily",
-		openToOtherSchools: false,
-	},
-
-	// —— School listings (IMT) ——
-	{
-		id: "sch-imt-nnenna",
-		kind: "school",
-		name: "Nnenna Okafor",
-		verified: true,
-		rating: 4.6,
-		ratingPercent: 59,
-		teaches: [course("imt", "COM 111"), course("imt", "COM 112")],
-		wantsToLearn: [course("imt", "STA 111"), course("imt", "ACC 111")],
-		listedAt: "2026-11-16T08:08:54.000Z",
-		universityId: "imt",
-		level: 100,
-		openToOtherSchools: false,
-	},
-	{
-		id: "sch-imt-uche",
-		kind: "school",
-		name: "Uche Nwosu",
-		verified: true,
-		rating: 4.5,
-		ratingPercent: 56,
-		teaches: [course("imt", "ACC 111"), course("imt", "ACC 211")],
-		wantsToLearn: [course("imt", "COM 111"), course("imt", "COM 211")],
-		listedAt: "2026-11-07T19:21:36.000Z",
-		universityId: "imt",
-		level: 200,
-		rateAmountNgn: 1200,
-		ratePeriod: "hour",
-		openToOtherSchools: true,
-	},
-
-	// —— School listings (UNICAL / UNIZIK) ——
-	{
-		id: "sch-unical-esther",
-		kind: "school",
-		name: "Esther Bassey",
-		verified: true,
-		rating: 4.8,
-		ratingPercent: 70,
-		teaches: [course("unical", "CSC 111"), course("unical", "CSC 211")],
-		wantsToLearn: [course("unical", "MTH 111"), course("unical", "STA 111")],
-		listedAt: "2026-11-13T12:00:00.000Z",
-		universityId: "unical",
-		level: 200,
-		openToOtherSchools: true,
-	},
-	{
-		id: "sch-unizik-chidi",
-		kind: "school",
-		name: "Chidi Okonkwo",
-		verified: true,
-		rating: 4.4,
-		ratingPercent: 54,
-		teaches: [course("unizik", "CSC 101"), course("unizik", "CSC 102")],
-		wantsToLearn: [course("unizik", "MTH 101"), course("unizik", "MTH 102")],
-		listedAt: "2026-11-04T15:36:22.000Z",
-		universityId: "unizik",
-		level: 100,
-		openToOtherSchools: false,
-	},
-	{
-		id: "sch-unizik-ada",
-		kind: "school",
-		name: "Adaeze Nwosu",
-		verified: false,
-		rating: 4.1,
-		ratingPercent: 46,
-		teaches: [course("unizik", "MTH 101"), course("unizik", "STA 101")],
-		wantsToLearn: [course("unizik", "CSC 101"), course("unizik", "CSC 201")],
-		listedAt: "2026-10-29T07:45:19.000Z",
-		universityId: "unizik",
-		level: 100,
-		rateAmountNgn: 2200,
-		ratePeriod: "weekly",
-		openToOtherSchools: true,
-	},
+/**
+ * Marketplace listings for general skill and school course matching.
+ * Includes handcrafted rows plus catalog-generated coverage so selections resolve.
+ */
+export const SWAP_LISTINGS: SwapListing[] = [
+	...HANDCRAFTED_LISTINGS,
+	...buildGeneralCatalogListings(),
+	...buildSchoolCatalogListings(),
 ];
 
 /**

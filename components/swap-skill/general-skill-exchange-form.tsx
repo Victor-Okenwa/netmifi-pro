@@ -26,7 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { currencyPrefix, formatWholeAmount } from "@/lib/currency/format";
 import type { CurrencyCode } from "@/lib/currency/types";
 import { usePreferredCurrency } from "@/lib/currency/use-preferred-currency";
-import { writeSwapOffer } from "@/lib/matching/offer-storage";
+import { buildMatchesHref, writeSwapOffer } from "@/lib/matching/offer-storage";
 import { cn } from "@/lib/utils";
 import type { WeekdayId } from "@/mock-data/constants";
 import { convertCurrency } from "@/mock-data/earnings";
@@ -89,7 +89,16 @@ export function GeneralSkillExchangeForm() {
 			currency,
 		});
 
-		router.push("/swap-skill/matches");
+		router.push(
+			buildMatchesHref({
+				kind: "general",
+				teach,
+				learn,
+				rateAmount: parsedAmount,
+				ratePeriod,
+				currency,
+			})
+		);
 	}
 
 	return (

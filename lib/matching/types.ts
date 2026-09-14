@@ -45,4 +45,12 @@ export interface SwapListing {
 export interface MatchResult {
 	listing: SwapListing;
 	matchKind: MatchKind;
+	/** Their teach labels that overlap what the user wants to learn */
+	matchedTheyTeach: string[];
+	/** Their learn labels that overlap what the user can teach */
+	matchedTheyWant: string[];
+	/** True when the user's rate bridges a missing skill side */
+	usedUserRate: boolean;
+	/** True when the listing's rate bridges a missing skill side */
+	usedListingRate: boolean;
 }

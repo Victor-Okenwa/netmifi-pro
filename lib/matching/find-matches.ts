@@ -1,14 +1,18 @@
-import { labelsOverlap } from "@/lib/matching/labels";
+import { intersectLabels } from "@/lib/matching/labels";
 import type { MatchKind, MatchResult, SwapListing, SwapOffer } from "@/lib/matching/types";
 
 /**
- * Classifies a listing against the current offer.
- * Perfect: mutual exchange. Partial: one-way skill/course overlap (or money-backed demand).
+ * Classifies a listing against the current offer using catalog labels + optional rates.
+ *
+ * Perfect: mutual exchange — they teach what I want to learn AND they want what I teach
+ *   (their "want" side may be satisfied by a money rate / open-buyer listing).
+ * Partial: only one side overlaps (skill or rate-backed).
+ *
  * @param offer - Current user offer
  * @param listing - Candidate listing
- * @returns Match kind, or null when there is no match
+ * @returns Match result, or null when there is no match
  */
-export function classifyMatch(offer: SwapOffer, listing: SwapListing): MatchKind | null {
+export function classifyMatch(offer: SwapOffer, listing: SwapListing): MatchResult | null {
 	if (offer.kind !== listing.kind) {
 		return null;
 	}
@@ -17,22 +21,50 @@ export function classifyMatch(offer: SwapOffer, listing: SwapListing): MatchKind
 		return null;
 	}
 
-	const theyTeachWhatIWant = labelsOverlap(listing.teaches, offer.learn);
-	const theyWantWhatITeach =
-		labelsOverlap(listing.wantsToLearn, offer.teach) ||
-		(offer.teach.length > 0 &&
-			listing.wantsToLearn.length === 0 &&
-			(listing.rateAmountNgn ?? 0) > 0);
+	const matchedTheyTeach = intersectLabels(listing.teaches, offer.learn);
+	const matchedTheyWant = intersectLabels(listing.wantsToLearn, offer.teach);
 
-	if (theyTeachWhatIWant && theyWantWhatITeach) {
-		return "perfect";
+	const skillTheyTeach = matchedTheyTeach.length > 0;
+	const skillTheyWant = matchedTheyWant.length > 0;
+
+	const listingWillPay = (listing.rateAmountNgn ?? 0) > 0;
+	const userWillPay = offer.rateAmount > 0;
+
+	// Open buyer pays with no learn list. Bridge only for sell-only offers,
+	// or when they also teach something the user wants to learn.
+	const openBuyer =
+		listing.wantsToLearn.length === 0 &&
+		listingWillPay &&
+		offer.teach.length > 0 &&
+		(offer.learn.length === 0 || skillTheyTeach);
+
+	const theyTeachWhatIWant = skillTheyTeach;
+	const theyWantWhatITeach = skillTheyWant || openBuyer;
+
+	if (!theyTeachWhatIWant && !theyWantWhatITeach) {
+		return null;
 	}
 
-	if (theyTeachWhatIWant || theyWantWhatITeach) {
-		return "partial";
-	}
+	const usedListingRate = openBuyer && !skillTheyWant;
+	const usedUserRate = userWillPay && skillTheyTeach && !skillTheyWant && !openBuyer;
 
-	return null;
+	const isPerfect =
+		theyTeachWhatIWant &&
+		theyWantWhatITeach &&
+		(skillTheyTeach || skillTheyWant || openBuyer) &&
+		skillTheyTeach &&
+		(skillTheyWant || openBuyer);
+
+	const matchKind: MatchKind = isPerfect ? "perfect" : "partial";
+
+	return {
+		listing,
+		matchKind,
+		matchedTheyTeach,
+		matchedTheyWant: skillTheyWant ? matchedTheyWant : openBuyer ? [...offer.teach] : [],
+		usedUserRate,
+		usedListingRate,
+	};
 }
 
 /**
@@ -63,18 +95,24 @@ export function findMatches(offer: SwapOffer, listings: SwapListing[]): MatchRes
 	const results: MatchResult[] = [];
 
 	for (const listing of listings) {
-		const matchKind = classifyMatch(offer, listing);
-		if (!matchKind) {
+		const match = classifyMatch(offer, listing);
+		if (!match) {
 			continue;
 		}
-
-		results.push({ listing, matchKind });
+		results.push(match);
 	}
 
 	return results.sort((a, b) => {
-		if (a.matchKind === b.matchKind) {
-			return b.listing.rating - a.listing.rating;
+		if (a.matchKind !== b.matchKind) {
+			return a.matchKind === "perfect" ? -1 : 1;
 		}
-		return a.matchKind === "perfect" ? -1 : 1;
+
+		const aHits = a.matchedTheyTeach.length + a.matchedTheyWant.length;
+		const bHits = b.matchedTheyTeach.length + b.matchedTheyWant.length;
+		if (aHits !== bHits) {
+			return bHits - aHits;
+		}
+
+		return b.listing.rating - a.listing.rating;
 	});
 }
