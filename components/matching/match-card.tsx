@@ -1,11 +1,13 @@
 import { CheckBadgeIcon, StarIcon } from "@heroicons/react/24/solid";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { getNameInitial } from "@/lib/auth/display";
 import { formatWholeAmount } from "@/lib/currency/format";
 import type { CurrencyCode } from "@/lib/currency/types";
 import { toLabelSet } from "@/lib/matching/labels";
 import type { MatchResult } from "@/lib/matching/types";
+import { getUserByUsername, getUserProfileHref } from "@/lib/users/catalog";
 import { cn } from "@/lib/utils";
 import { RATE_PERIOD_LABELS } from "@/mock-data/constants";
 import { convertFromNgn } from "@/mock-data/earnings";
@@ -24,6 +26,9 @@ export function MatchCard({ match, currency, onInvite, className }: MatchCardPro
 	const { listing, matchKind, matchedTheyTeach, matchedTheyWant, usedUserRate, usedListingRate } =
 		match;
 	const initial = getNameInitial(listing.name);
+	const profile = getUserByUsername(listing.username);
+	const profileHref = getUserProfileHref(listing.username);
+	const avatarUrl = profile?.avatarUrl;
 	const footer = formatMatchFooter(
 		listing.rateAmountNgn,
 		listing.ratePeriod,
@@ -36,40 +41,42 @@ export function MatchCard({ match, currency, onInvite, className }: MatchCardPro
 	return (
 		<article className={cn("rounded-2xl border border-border bg-card p-4 shadow-sm", className)}>
 			<div className="flex items-start gap-3">
-				<Avatar className="size-11 bg-primary text-primary-foreground after:border-primary/30">
-					<AvatarFallback className="bg-primary font-semibold text-primary-foreground text-sm">
-						{initial}
-					</AvatarFallback>
-				</Avatar>
+				<Link
+					className="flex min-w-0 flex-1 items-start gap-3 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+					href={profileHref}
+				>
+					<Avatar className="size-11 bg-primary text-primary-foreground after:border-primary/30">
+						{avatarUrl ? <AvatarImage alt={listing.name} src={avatarUrl} /> : null}
+						<AvatarFallback className="bg-primary font-semibold text-primary-foreground text-sm">
+							{initial}
+						</AvatarFallback>
+					</Avatar>
 
-				<div className="min-w-0 flex-1">
-					<div className="flex items-start justify-between gap-2">
-						<div className="min-w-0">
-							<div className="flex items-center gap-1">
-								<p className="truncate font-semibold text-foreground text-sm">{listing.name}</p>
-								{listing.verified ? (
-									<CheckBadgeIcon aria-label="Verified" className="size-4 shrink-0 text-primary" />
-								) : null}
-							</div>
-							<p className="mt-0.5 flex items-center gap-1 text-muted-foreground text-xs">
-								<StarIcon className="size-3.5 text-amber-400" />
-								<span>
-									{listing.rating.toFixed(1)} ({listing.ratingPercent}%) rating & reviews
-								</span>
-							</p>
+					<div className="min-w-0 flex-1">
+						<div className="flex items-center gap-1">
+							<p className="truncate font-semibold text-foreground text-sm">{listing.name}</p>
+							{listing.verified ? (
+								<CheckBadgeIcon aria-label="Verified" className="size-4 shrink-0 text-primary" />
+							) : null}
 						</div>
-						<span
-							className={cn(
-								"shrink-0 rounded-full px-2.5 py-1 font-medium text-[10px] leading-none",
-								matchKind === "perfect"
-									? "bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300"
-									: "bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300"
-							)}
-						>
-							{matchKind === "perfect" ? "Perfect Match" : "Partial Match"}
-						</span>
+						<p className="mt-0.5 flex items-center gap-1 text-muted-foreground text-xs">
+							<StarIcon className="size-3.5 text-amber-400" />
+							<span>
+								{listing.rating.toFixed(1)} ({listing.ratingPercent}%) rating & reviews
+							</span>
+						</p>
 					</div>
-				</div>
+				</Link>
+				<span
+					className={cn(
+						"shrink-0 rounded-full px-2.5 py-1 font-medium text-[10px] leading-none",
+						matchKind === "perfect"
+							? "bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300"
+							: "bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300"
+					)}
+				>
+					{matchKind === "perfect" ? "Perfect Match" : "Partial Match"}
+				</span>
 			</div>
 
 			<div className="mt-3 space-y-2">

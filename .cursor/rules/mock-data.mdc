@@ -14,6 +14,8 @@ All hackathon data lives under `mock-data/`. Import with `@/mock-data/...`. Do n
 
 **General skills** — `SKILL_CATEGORIES` → category (Programming, Design, Photography, Life skill) → **skill** `{ name }` (Python, barbing, swimming).
 
+**Users** — `BARTER_USERS` in `users.ts`: `{ username, name, email, bio, avatar/cover, skills, education, … }`. Listings reference `username`; the public page is `/users/<username>`.
+
 ## Rules
 
 - Typed `interface`s in `mock-data/types.ts`

@@ -1,6 +1,7 @@
 import type { SwapListing } from "@/lib/matching/types";
 import { getAllSkillNames } from "@/lib/skills/catalog";
 import { formatCourseLabel } from "@/lib/universities/catalog";
+import { slugifyUsername } from "@/lib/users/slug";
 import type { AcademicCourse, RatePeriod, UniversityId } from "@/mock-data/types";
 import { UNIVERSITIES } from "@/mock-data/universities";
 
@@ -24,6 +25,23 @@ function course(universityId: UniversityId, code: string): string {
 	}
 
 	return code;
+}
+
+/**
+ * Builds a listing display name and unique profile username.
+ * @param first - First name
+ * @param last - Last name
+ * @param suffix - Optional suffix so generated rows stay unique
+ * @returns Name and username
+ */
+function listingPerson(
+	first: string,
+	last: string,
+	suffix?: string
+): { name: string; username: string } {
+	const name = `${first} ${last}`;
+	const base = slugifyUsername(name);
+	return { name, username: suffix ? `${base}-${suffix}` : base };
 }
 
 const FIRST_NAMES = [
@@ -94,10 +112,13 @@ function buildGeneralCatalogListings(): SwapListing[] {
 		const last = LAST_NAMES[(index * 3) % LAST_NAMES.length] ?? "User";
 		const withRate = index % 3 === 0;
 
+		const { name, username } = listingPerson(first, last, `g${index}`);
+
 		listings.push({
 			id: `gen-catalog-${index}`,
 			kind: "general",
-			name: `${first} ${last}`,
+			name,
+			username,
 			verified: index % 2 === 0,
 			rating: 4 + (index % 10) / 10,
 			ratingPercent: 40 + (index % 50),
@@ -121,10 +142,15 @@ function buildGeneralCatalogListings(): SwapListing[] {
 		if (!skill) {
 			continue;
 		}
+		const buyerFirst = FIRST_NAMES[(index + 5) % FIRST_NAMES.length] ?? "Alex";
+		const buyerLast = LAST_NAMES[(index + 2) % LAST_NAMES.length] ?? "Buyer";
+		const buyer = listingPerson(buyerFirst, buyerLast, `b${index}`);
+
 		listings.push({
 			id: `gen-buyer-${index}`,
 			kind: "general",
-			name: `${FIRST_NAMES[(index + 5) % FIRST_NAMES.length]} ${LAST_NAMES[(index + 2) % LAST_NAMES.length]}`,
+			name: buyer.name,
+			username: buyer.username,
 			verified: true,
 			rating: 4.5,
 			ratingPercent: 60,
@@ -165,10 +191,13 @@ function buildSchoolCatalogListings(): SwapListing[] {
 			const last = LAST_NAMES[(counter * 2) % LAST_NAMES.length] ?? "Scholar";
 			const withRate = counter % 4 === 0;
 
+			const { name, username } = listingPerson(first, last, `s${counter}`);
+
 			listings.push({
 				id: `sch-catalog-${university.id}-${counter}`,
 				kind: "school",
-				name: `${first} ${last}`,
+				name,
+				username,
 				verified: counter % 2 === 0,
 				rating: 4 + (counter % 9) / 10,
 				ratingPercent: 45 + (counter % 40),
@@ -202,6 +231,7 @@ const HANDCRAFTED_LISTINGS: SwapListing[] = [
 		id: "gen-victony",
 		kind: "general",
 		name: "Victony Darey",
+		username: "victony-darey",
 		verified: true,
 		rating: 4.8,
 		ratingPercent: 63,
@@ -213,6 +243,7 @@ const HANDCRAFTED_LISTINGS: SwapListing[] = [
 		id: "gen-gideon-rate",
 		kind: "general",
 		name: "Gideon Jefferson",
+		username: "gideon-jefferson",
 		verified: true,
 		rating: 4.9,
 		ratingPercent: 71,
@@ -226,6 +257,7 @@ const HANDCRAFTED_LISTINGS: SwapListing[] = [
 		id: "gen-gideon-partial",
 		kind: "general",
 		name: "Gideon Jefferson",
+		username: "gideon-jefferson",
 		verified: true,
 		rating: 4.6,
 		ratingPercent: 58,
@@ -237,6 +269,7 @@ const HANDCRAFTED_LISTINGS: SwapListing[] = [
 		id: "gen-onyekachi",
 		kind: "general",
 		name: "Onyekachi Nnaemena",
+		username: "onyekachi-nnaemena",
 		verified: true,
 		rating: 4.7,
 		ratingPercent: 64,
@@ -248,6 +281,7 @@ const HANDCRAFTED_LISTINGS: SwapListing[] = [
 		id: "gen-adaobi",
 		kind: "general",
 		name: "Adaobi Okeke",
+		username: "adaobi-okeke",
 		verified: true,
 		rating: 4.5,
 		ratingPercent: 55,
@@ -261,6 +295,7 @@ const HANDCRAFTED_LISTINGS: SwapListing[] = [
 		id: "gen-samuel-buyer",
 		kind: "general",
 		name: "Samuel Okoro",
+		username: "samuel-okoro",
 		verified: true,
 		rating: 4.3,
 		ratingPercent: 50,
@@ -274,6 +309,7 @@ const HANDCRAFTED_LISTINGS: SwapListing[] = [
 		id: "sch-unn-chioma",
 		kind: "school",
 		name: "Chioma Okeke",
+		username: "chioma-okeke",
 		verified: true,
 		rating: 4.8,
 		ratingPercent: 67,
@@ -288,6 +324,7 @@ const HANDCRAFTED_LISTINGS: SwapListing[] = [
 		id: "sch-unn-ebuka",
 		kind: "school",
 		name: "Ebuka Nwankwo",
+		username: "ebuka-nwankwo",
 		verified: true,
 		rating: 4.7,
 		ratingPercent: 62,
@@ -304,6 +341,7 @@ const HANDCRAFTED_LISTINGS: SwapListing[] = [
 		id: "sch-unilag-tola",
 		kind: "school",
 		name: "Tola Adebayo",
+		username: "tola-adebayo",
 		verified: true,
 		rating: 4.9,
 		ratingPercent: 74,
@@ -318,6 +356,7 @@ const HANDCRAFTED_LISTINGS: SwapListing[] = [
 		id: "sch-unilag-seyi",
 		kind: "school",
 		name: "Seyi Ogunleye",
+		username: "seyi-ogunleye",
 		verified: true,
 		rating: 4.6,
 		ratingPercent: 60,

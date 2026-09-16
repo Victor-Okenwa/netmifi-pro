@@ -29,3 +29,39 @@ export interface SkillCategory {
 	name: string;
 	skills: Skill[];
 }
+
+export interface BarterSocialLinks {
+	facebook?: string;
+	instagram?: string;
+	twitter?: string;
+	linkedin?: string;
+}
+
+export interface BarterEducation {
+	universityId: UniversityId;
+	level: AcademicLevel;
+}
+
+export interface BarterUser {
+	username: string;
+	name: string;
+	email: string;
+	verified: boolean;
+	bio: string;
+	about: string;
+	avatarUrl: string;
+	coverUrl: string;
+	rating: number;
+	ratingPercent: number;
+	positiveReviewPercent: number;
+	peersCount: number;
+	listingsCount: number;
+	joinedAt: string;
+	learnersPeeredWith: number;
+	location: string;
+	languages: string[];
+	socials: BarterSocialLinks;
+	education?: BarterEducation;
+	teaches: string[];
+	wantsToLearn: string[];
+}

@@ -21,6 +21,7 @@ describe("classifyMatch", () => {
 			id: "a",
 			kind: "general",
 			name: "Test",
+			username: "test-user",
 			verified: true,
 			rating: 4.5,
 			ratingPercent: 50,
@@ -46,6 +47,7 @@ describe("classifyMatch", () => {
 			id: "b",
 			kind: "general",
 			name: "Partial",
+			username: "partial-user",
 			verified: false,
 			rating: 4,
 			ratingPercent: 40,
@@ -69,6 +71,7 @@ describe("classifyMatch", () => {
 			id: "c",
 			kind: "general",
 			name: "Buyer",
+			username: "buyer-user",
 			verified: true,
 			rating: 4.2,
 			ratingPercent: 45,
@@ -98,6 +101,7 @@ describe("findMatches against marketplace data", () => {
 		expect(matches.length).toBeGreaterThan(0);
 		expect(matches.some((match) => match.matchKind === "perfect")).toBe(true);
 		expect(matches.some((match) => match.listing.name === "Victony Darey")).toBe(true);
+		expect(matches.some((match) => match.listing.username === "victony-darey")).toBe(true);
 	});
 
 	test("unrelated skills can yield no matches", () => {

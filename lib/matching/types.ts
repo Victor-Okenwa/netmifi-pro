@@ -27,6 +27,8 @@ export interface SwapListing {
 	id: string;
 	kind: SwapKind;
 	name: string;
+	/** Stable profile slug used in `/users/<username>` */
+	username: string;
 	verified: boolean;
 	rating: number;
 	/** Percentile-style review score shown in the card copy */
