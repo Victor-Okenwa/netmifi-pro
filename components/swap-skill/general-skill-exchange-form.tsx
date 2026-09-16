@@ -4,7 +4,7 @@ import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CurrencySelector } from "@/components/home/currency-selector";
 import { DayPicker } from "@/components/swap-skill/day-picker";
 import { RatePeriodToggle } from "@/components/swap-skill/rate-period-toggle";
@@ -27,6 +27,8 @@ import { currencyPrefix, formatWholeAmount } from "@/lib/currency/format";
 import type { CurrencyCode } from "@/lib/currency/types";
 import { usePreferredCurrency } from "@/lib/currency/use-preferred-currency";
 import { buildMatchesHref, writeSwapOffer } from "@/lib/matching/offer-storage";
+import { readGeneralSwapDraft, writeGeneralSwapDraft } from "@/lib/swap-preferences/storage";
+import type { GeneralSwapDraft } from "@/lib/swap-preferences/types";
 import { cn } from "@/lib/utils";
 import type { WeekdayId } from "@/mock-data/constants";
 import { convertCurrency } from "@/mock-data/earnings";
@@ -34,10 +36,12 @@ import type { RatePeriod } from "@/mock-data/types";
 
 /**
  * General skill exchange form matching the swap-skill flow design.
+ * Inputs persist to localStorage so Settings and return visits stay filled.
  */
 export function GeneralSkillExchangeForm() {
 	const router = useRouter();
 	const { currency, setCurrency } = usePreferredCurrency();
+	const [hydrated, setHydrated] = useState(false);
 	const [teachEnabled, setTeachEnabled] = useState(true);
 	const [learnEnabled, setLearnEnabled] = useState(true);
 	const [teachSkills, setTeachSkills] = useState<string[]>([]);
@@ -47,6 +51,50 @@ export function GeneralSkillExchangeForm() {
 	const [note, setNote] = useState("");
 	const [availableDays, setAvailableDays] = useState<WeekdayId[]>([]);
 	const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+	useEffect(() => {
+		const draft = readGeneralSwapDraft();
+		setTeachEnabled(draft.teachEnabled);
+		setLearnEnabled(draft.learnEnabled);
+		setTeachSkills(draft.teachSkills);
+		setLearnSkills(draft.learnSkills);
+		setRatePeriod(draft.ratePeriod);
+		setRateAmount(draft.rateAmount);
+		setNote(draft.note);
+		setAvailableDays(draft.availableDays);
+		setAgreedToTerms(draft.agreedToTerms);
+		setHydrated(true);
+	}, []);
+
+	useEffect(() => {
+		if (!hydrated) {
+			return;
+		}
+
+		const draft: GeneralSwapDraft = {
+			teachEnabled,
+			learnEnabled,
+			teachSkills,
+			learnSkills,
+			ratePeriod,
+			rateAmount,
+			note,
+			availableDays,
+			agreedToTerms,
+		};
+		writeGeneralSwapDraft(draft);
+	}, [
+		hydrated,
+		teachEnabled,
+		learnEnabled,
+		teachSkills,
+		learnSkills,
+		ratePeriod,
+		rateAmount,
+		note,
+		availableDays,
+		agreedToTerms,
+	]);
 
 	const parsedAmount = Number.parseFloat(rateAmount.replace(/,/g, "")) || 0;
 	const secondaryCurrency: CurrencyCode = currency === "USD" ? "NGN" : "USD";
@@ -79,6 +127,18 @@ export function GeneralSkillExchangeForm() {
 			toast.error("Add a skill to learn or set a rate");
 			return;
 		}
+
+		writeGeneralSwapDraft({
+			teachEnabled,
+			learnEnabled,
+			teachSkills,
+			learnSkills,
+			ratePeriod,
+			rateAmount,
+			note,
+			availableDays,
+			agreedToTerms,
+		});
 
 		writeSwapOffer({
 			kind: "general",

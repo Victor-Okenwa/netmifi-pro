@@ -73,9 +73,9 @@ export function AppHeader({
 						<PopoverContent align="end" className="w-48 gap-1 p-1.5">
 							<Link
 								className="flex items-center rounded-md px-2.5 py-2 text-sm hover:bg-muted"
-								href="/profile"
+								href="/settings"
 							>
-								Profile
+								Settings
 							</Link>
 							<button
 								className="flex w-full items-center rounded-md px-2.5 py-2 text-left text-destructive text-sm hover:bg-muted"

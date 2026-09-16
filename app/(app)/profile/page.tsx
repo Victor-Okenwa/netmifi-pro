@@ -1,5 +1,5 @@
-import { ProfilePageClient } from "@/components/profile/profile-page";
+import { redirect } from "next/navigation";
 
-export default function ProfilePage() {
-	return <ProfilePageClient />;
+export default function ProfileRedirectPage() {
+	redirect("/settings");
 }

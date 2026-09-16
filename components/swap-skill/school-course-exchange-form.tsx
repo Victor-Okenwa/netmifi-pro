@@ -4,7 +4,7 @@ import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CurrencySelector } from "@/components/home/currency-selector";
 import { CourseCombobox } from "@/components/swap-skill/course-combobox";
 import { DayPicker } from "@/components/swap-skill/day-picker";
@@ -35,6 +35,8 @@ import { currencyPrefix, formatWholeAmount } from "@/lib/currency/format";
 import type { CurrencyCode } from "@/lib/currency/types";
 import { usePreferredCurrency } from "@/lib/currency/use-preferred-currency";
 import { buildMatchesHref, writeSwapOffer } from "@/lib/matching/offer-storage";
+import { readSchoolSwapDraft, writeSchoolSwapDraft } from "@/lib/swap-preferences/storage";
+import type { SchoolSwapDraft } from "@/lib/swap-preferences/types";
 import { cn } from "@/lib/utils";
 import { ACADEMIC_LEVELS, type WeekdayId } from "@/mock-data/constants";
 import { convertCurrency } from "@/mock-data/earnings";
@@ -42,10 +44,12 @@ import type { AcademicLevel, RatePeriod, UniversityId } from "@/mock-data/types"
 
 /**
  * School course swap form: level, school, courses, rate, and availability.
+ * Inputs persist to localStorage so Settings and return visits stay filled.
  */
 export function SchoolCourseExchangeForm() {
 	const router = useRouter();
 	const { currency, setCurrency } = usePreferredCurrency();
+	const [hydrated, setHydrated] = useState(false);
 	const [level, setLevel] = useState<AcademicLevel | null>(null);
 	const [universityId, setUniversityId] = useState<UniversityId | null>(null);
 	const [openToOtherSchools, setOpenToOtherSchools] = useState(false);
@@ -58,6 +62,59 @@ export function SchoolCourseExchangeForm() {
 	const [note, setNote] = useState("");
 	const [availableDays, setAvailableDays] = useState<WeekdayId[]>([]);
 	const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+	useEffect(() => {
+		const draft = readSchoolSwapDraft();
+		setLevel(draft.level);
+		setUniversityId(draft.universityId);
+		setOpenToOtherSchools(draft.openToOtherSchools);
+		setTeachEnabled(draft.teachEnabled);
+		setLearnEnabled(draft.learnEnabled);
+		setTeachCourses(draft.teachCourses);
+		setLearnCourses(draft.learnCourses);
+		setRatePeriod(draft.ratePeriod);
+		setRateAmount(draft.rateAmount);
+		setNote(draft.note);
+		setAvailableDays(draft.availableDays);
+		setAgreedToTerms(draft.agreedToTerms);
+		setHydrated(true);
+	}, []);
+
+	useEffect(() => {
+		if (!hydrated) {
+			return;
+		}
+
+		const draft: SchoolSwapDraft = {
+			level,
+			universityId,
+			openToOtherSchools,
+			teachEnabled,
+			learnEnabled,
+			teachCourses,
+			learnCourses,
+			ratePeriod,
+			rateAmount,
+			note,
+			availableDays,
+			agreedToTerms,
+		};
+		writeSchoolSwapDraft(draft);
+	}, [
+		hydrated,
+		level,
+		universityId,
+		openToOtherSchools,
+		teachEnabled,
+		learnEnabled,
+		teachCourses,
+		learnCourses,
+		ratePeriod,
+		rateAmount,
+		note,
+		availableDays,
+		agreedToTerms,
+	]);
 
 	const parsedAmount = Number.parseFloat(rateAmount.replace(/,/g, "")) || 0;
 	const secondaryCurrency: CurrencyCode = currency === "USD" ? "NGN" : "USD";
@@ -106,6 +163,21 @@ export function SchoolCourseExchangeForm() {
 			toast.error("Add a course to learn or set a rate");
 			return;
 		}
+
+		writeSchoolSwapDraft({
+			level,
+			universityId,
+			openToOtherSchools,
+			teachEnabled,
+			learnEnabled,
+			teachCourses,
+			learnCourses,
+			ratePeriod,
+			rateAmount,
+			note,
+			availableDays,
+			agreedToTerms,
+		});
 
 		const offer = {
 			kind: "school" as const,
