@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { AuthDemoNotice } from "@/components/auth/auth-demo-notice";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -68,6 +69,8 @@ export function AuthForm({ mode, onModeChange, onSignIn, onSignUp, className }: 
 							: "Welcome back. Use the email and password you registered with."}
 					</p>
 				</header>
+
+				<AuthDemoNotice />
 
 				{isSignUp ? (
 					<SignUpFields key="sign-up" onModeChange={onModeChange} onSubmit={onSignUp} />
