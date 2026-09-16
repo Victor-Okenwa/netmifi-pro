@@ -1,7 +1,8 @@
 import type { SwapListing } from "@/lib/matching/types";
+import { getUniversityById } from "@/lib/universities/catalog";
 import { emailFromUsername } from "@/lib/users/slug";
 import { SWAP_LISTINGS } from "@/mock-data/swap-listings";
-import type { BarterUser, UniversityId } from "@/mock-data/types";
+import type { AcademicLevel, BarterUser, UniversityId } from "@/mock-data/types";
 
 const FALLBACK_COVER =
 	"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80";
@@ -58,9 +59,9 @@ const PROFILE_OVERRIDES: Record<string, Partial<BarterUser>> = {
 		},
 	},
 	"gideon-jefferson": {
-		bio: "Data-minded engineer who trades Python sessions for design craft.",
+		bio: "Data engineer · Ibadan | Python, analysis, and cleaner dashboards",
 		about:
-			"I help teams turn messy spreadsheets into decisions. On NetMifi I teach analysis and pick up visual design so my dashboards feel as clear as they are correct.",
+			"Gideon is a data engineer in Ibadan who cares more about clear thinking than flashy tools. He started in spreadsheets, moved into Python, and now helps teams turn messy numbers into decisions they can actually use. When he is not in a notebook, he is usually sketching how a chart should feel.",
 		location: "Ibadan, Nigeria",
 		languages: ["English", "Yoruba", "French"],
 		education: { universityId: "ui", level: 300 },
@@ -71,9 +72,9 @@ const PROFILE_OVERRIDES: Record<string, Partial<BarterUser>> = {
 		joinedAt: "2024-11-02T00:00:00.000Z",
 	},
 	"onyekachi-nnaemena": {
-		bio: "Product designer swapping Figma files for backend fundamentals.",
+		bio: "Product designer · Enugu | craft, critique, and systems",
 		about:
-			"I run critique circles for early-career designers and want to understand how the interfaces I ship are actually built. Happy to trade UI systems for programming hours.",
+			"Onyekachi is a product designer from Enugu. He runs critique circles for early-career designers and is stubborn about craft — spacing, type, and whether an interface actually helps someone finish a task. He is teaching himself how the things he designs get built so he can talk with engineers without guessing.",
 		location: "Enugu, Nigeria",
 		languages: ["English", "Igbo"],
 		education: { universityId: "unizik", level: 400 },
@@ -84,9 +85,9 @@ const PROFILE_OVERRIDES: Record<string, Partial<BarterUser>> = {
 		joinedAt: "2025-03-08T00:00:00.000Z",
 	},
 	"adaobi-okeke": {
-		bio: "Languages coach open to paying for Python and SQL mentorship.",
+		bio: "Languages coach · Lagos | English, French, public speaking",
 		about:
-			"I teach English, French, and public speaking to professionals. I'm building a data skill stack so I can measure learning outcomes for the cohorts I run.",
+			"Adaobi coaches professionals in English, French, and public speaking. She grew up switching languages at home and now runs small cohorts for people who need to sound clear at work. She is also teaching herself data skills so she can measure whether her sessions actually change how people communicate.",
 		location: "Lagos State, Nigeria",
 		languages: ["English", "French", "Igbo"],
 		education: { universityId: "unilag", level: 200 },
@@ -97,9 +98,9 @@ const PROFILE_OVERRIDES: Record<string, Partial<BarterUser>> = {
 		joinedAt: "2024-08-14T00:00:00.000Z",
 	},
 	"samuel-okoro": {
-		bio: "Mobile engineer who pays to learn adjacent skills.",
+		bio: "Mobile engineer · Accra | React Native and product shipping",
 		about:
-			"I ship React Native apps for startups and list a weekly rate when I need a skill I do not have time to swap for. Always looking for thoughtful collaborators.",
+			"Samuel is a mobile engineer in Accra who ships React Native apps for early-stage teams. He likes calm code reviews, small pull requests, and products that still work on a slow phone. Outside work he is usually comparing notes with other builders rather than collecting certificates.",
 		location: "Accra, Ghana",
 		languages: ["English", "Twi"],
 		peersCount: 7_250,
@@ -109,9 +110,9 @@ const PROFILE_OVERRIDES: Record<string, Partial<BarterUser>> = {
 		joinedAt: "2025-02-21T00:00:00.000Z",
 	},
 	"chioma-okeke": {
-		bio: "UNN 100-level student trading computing courses for mathematics.",
+		bio: "Computer science student · UNN 100L | Nsukka",
 		about:
-			"I am comfortable with COS 101 and COS 102 and want a stronger maths foundation before 200 level. I prefer swaps with classmates on the same campus.",
+			"Chioma is a 100-level computer science student at the University of Nigeria, Nsukka. Computing came easily; she wants a stronger maths foundation before 200 level so she is not guessing in later courses. She prefers studying with classmates on campus and rewriting notes until they make sense.",
 		location: "Nsukka, Nigeria",
 		languages: ["English", "Igbo"],
 		education: { universityId: "unn", level: 100 },
@@ -122,9 +123,9 @@ const PROFILE_OVERRIDES: Record<string, Partial<BarterUser>> = {
 		joinedAt: "2025-09-01T00:00:00.000Z",
 	},
 	"ebuka-nwankwo": {
-		bio: "200-level maths tutor open to computer science swaps across schools.",
+		bio: "Mathematics tutor · UNN 200L | Enugu",
 		about:
-			"I tutor MTH 111 and MTH 211 and want COS depth for side projects. I am open to learners from other universities if the timetable works.",
+			"Ebuka is a 200-level student at UNN who tutors first-year mathematics on the side. He is patient with people who say they are 'not maths people' and keeps a folder of past questions he has rewritten in plain language. He wants more computer science depth for side projects and does not mind working with students from other schools.",
 		location: "Enugu, Nigeria",
 		languages: ["English", "Igbo", "French"],
 		education: { universityId: "unn", level: 200 },
@@ -135,9 +136,9 @@ const PROFILE_OVERRIDES: Record<string, Partial<BarterUser>> = {
 		joinedAt: "2025-06-12T00:00:00.000Z",
 	},
 	"tola-adebayo": {
-		bio: "UNILAG freshman swapping intro computing for core maths.",
+		bio: "UNILAG freshman · computing and campus study groups",
 		about:
-			"CSC 111 clicked for me; algebra still needs a partner who can explain it slowly. I keep sessions on campus and write notes we can both reuse.",
+			"Tola is a freshman at the University of Lagos. Introductory computing clicked; algebra still needs someone who can slow down without making it feel like a lecture. She studies on campus, writes notes both people can reuse, and would rather ask a question twice than pretend she understood it.",
 		location: "Lagos State, Nigeria",
 		languages: ["English", "Yoruba"],
 		education: { universityId: "unilag", level: 100 },
@@ -148,9 +149,9 @@ const PROFILE_OVERRIDES: Record<string, Partial<BarterUser>> = {
 		joinedAt: "2025-10-03T00:00:00.000Z",
 	},
 	"seyi-ogunleye": {
-		bio: "Statistics-first student looking for computing practice.",
+		bio: "Statistics student · UNILAG | numbers first, then code",
 		about:
-			"I can teach MTH 111 and STA 111 and want lab time with CSC courses. Weekly rate is listed for people who would rather pay than swap.",
+			"Seyi is a University of Lagos student who came in through statistics and is now trying to make computing feel as natural as a spreadsheet. He explains numbers patiently and wants more lab time so theory stops sitting on paper. Evenings are usually past questions, football, and a stubborn statistics problem.",
 		location: "Lagos State, Nigeria",
 		languages: ["English", "Yoruba", "French"],
 		education: { universityId: "unilag", level: 100 },
@@ -229,6 +230,75 @@ function educationFromListings(
 }
 
 /**
+ * First word of a display name.
+ * @param name - Full name
+ * @returns Given name
+ */
+function firstNameOf(name: string): string {
+	return name.trim().split(/\s+/)[0] ?? name;
+}
+
+/**
+ * Drops course codes so bios read like ordinary sentences.
+ * @param tag - Skill or "CODE · Name" course label
+ * @returns Plain language label
+ */
+function plainLabel(tag: string): string {
+	const separator = " · ";
+	if (!tag.includes(separator)) {
+		return tag;
+	}
+	const [, name] = tag.split(separator);
+	return name?.trim() || tag;
+}
+
+/**
+ * Writes a third-person bio from listing and profile facts.
+ * @param name - Display name
+ * @param location - City / region
+ * @param teaches - Skills or courses they offer
+ * @param wantsToLearn - Skills or courses they want
+ * @param education - Optional school + level
+ * @param hash - Seed for rotating sentence shapes
+ * @returns About-card biography
+ */
+function buildAboutBio(
+	name: string,
+	location: string,
+	teaches: string[],
+	wantsToLearn: string[],
+	education: { universityId: UniversityId; level: AcademicLevel } | undefined,
+	hash: number
+): string {
+	const first = firstNameOf(name);
+	const craft = plainLabel(teaches[0] ?? "their craft");
+	const curiosity = wantsToLearn[0] ? plainLabel(wantsToLearn[0]) : null;
+	const school = education ? getUniversityById(education.universityId) : undefined;
+	const schoolLine =
+		school && education ? ` ${first} is a ${education.level}L student at ${school.name}.` : "";
+	const interest = curiosity ? ` Lately ${first} has been curious about ${curiosity}.` : "";
+
+	const variants = [
+		`${first} is based in ${location}.${schoolLine} People around them know the work in ${craft}.${interest} They like learning with peers who bring real projects, not just theory.`,
+		`${name} lives in ${location} and spends most weeks practising ${craft}.${schoolLine}${interest} ${first} would rather make something with someone else than study alone.`,
+		`${first} grew up working things out in public — asking questions, sharing notes, and iterating.${schoolLine} ${craft} is the craft they are most trusted for.${interest} Home base is ${location}.`,
+	] as const;
+
+	return variants[hash % variants.length] ?? variants[0];
+}
+
+/**
+ * Short tagline for the profile hero.
+ * @param teaches - Offer labels
+ * @param location - City / region
+ * @returns Compact bio line
+ */
+function buildHeroBio(teaches: string[], location: string): string {
+	const craft = plainLabel(teaches[0] ?? "Skills");
+	return `${craft} · ${location}`;
+}
+
+/**
  * Builds a public barter profile from one or more listings.
  * @param username - Profile slug
  * @param listings - Listings owned by this user
@@ -245,14 +315,17 @@ function buildUserFromListings(username: string, listings: SwapListing[]): Barte
 	const photoIndex = hash % 100;
 	const override = PROFILE_OVERRIDES[username];
 	const education = educationFromListings(listings);
+	const location = LOCATIONS[hash % LOCATIONS.length] ?? "Lagos State, Nigeria";
+	const teaches = uniqueLabels(listings.flatMap((listing) => listing.teaches));
+	const wantsToLearn = uniqueLabels(listings.flatMap((listing) => listing.wantsToLearn));
 
 	const generated: BarterUser = {
 		username,
 		name: primary.name,
 		email: emailFromUsername(username),
 		verified: listings.some((listing) => listing.verified),
-		bio: `${primary.name} trades ${primary.teaches[0] ?? "skills"} on NetMifi and is open to new matches.`,
-		about: `${primary.name} listed ${listings.length} swap offer${listings.length === 1 ? "" : "s"} on the marketplace. Invite them to draft an agreement when the skills line up.`,
+		bio: buildHeroBio(teaches, location),
+		about: buildAboutBio(primary.name, location, teaches, wantsToLearn, education, hash),
 		avatarUrl: `https://randomuser.me/api/portraits/${gender}/${photoIndex}.jpg`,
 		coverUrl: COVER_IMAGES[hash % COVER_IMAGES.length] ?? FALLBACK_COVER,
 		rating: Math.max(...listings.map((listing) => listing.rating)),
@@ -262,7 +335,7 @@ function buildUserFromListings(username: string, listings: SwapListing[]): Barte
 		listingsCount: listings.length,
 		joinedAt: listings.map((listing) => listing.listedAt).sort()[0] ?? "2025-01-01T00:00:00.000Z",
 		learnersPeeredWith: 120 + (hash % 8_000),
-		location: LOCATIONS[hash % LOCATIONS.length] ?? "Lagos State, Nigeria",
+		location,
 		languages: [...(LANGUAGE_SETS[hash % LANGUAGE_SETS.length] ?? ["English"])],
 		socials:
 			hash % 3 === 0
@@ -272,8 +345,8 @@ function buildUserFromListings(username: string, listings: SwapListing[]): Barte
 					}
 				: {},
 		education,
-		teaches: uniqueLabels(listings.flatMap((listing) => listing.teaches)),
-		wantsToLearn: uniqueLabels(listings.flatMap((listing) => listing.wantsToLearn)),
+		teaches,
+		wantsToLearn,
 	};
 
 	return override ? { ...generated, ...override } : generated;

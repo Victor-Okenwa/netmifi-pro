@@ -6,7 +6,7 @@ interface ProfileAboutCardProps {
 }
 
 /**
- * Long-form about copy for a barter profile.
+ * Longer bio copy for a barter profile About card.
  */
 export function ProfileAboutCard({ user }: ProfileAboutCardProps) {
 	return (

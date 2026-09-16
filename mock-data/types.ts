@@ -47,7 +47,9 @@ export interface BarterUser {
 	name: string;
 	email: string;
 	verified: boolean;
+	/** Short tagline shown under the name */
 	bio: string;
+	/** Longer first-person or third-person bio in the About card */
 	about: string;
 	avatarUrl: string;
 	coverUrl: string;
